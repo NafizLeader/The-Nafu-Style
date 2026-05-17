@@ -1,0 +1,1634 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShopBD Admin Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+:root{
+  --p:#4DA6FF;--s:#70C1FF;--bg:#EAF7FF;
+  --grad:linear-gradient(135deg,#4DA6FF,#70C1FF);
+  --sh:0 8px 32px rgba(77,166,255,.18);
+  --sh2:0 4px 16px rgba(77,166,255,.10);
+  --r:16px;--rs:12px;
+  --tx:#1a2744;--txm:#7a90b5;
+  --red:#FF4D6D;--green:#22c55e;--yellow:#f59e0b;
+  --sidebar:#0f1923;
+  --card:#fff;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Hind Siliguri','Poppins',sans-serif;background:#f0f4f8;color:var(--tx);min-height:100vh;}
+button,input,select,textarea{font-family:inherit;}
+
+/* LOGIN */
+#admLogin{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#0f1923,#1a2744);padding:18px;}
+.login-card{background:#fff;border-radius:20px;padding:32px;width:100%;max-width:380px;box-shadow:0 24px 60px rgba(0,0,0,.35);}
+.login-logo{text-align:center;margin-bottom:24px;}
+.login-logo .emoji{font-size:3rem;display:block;margin-bottom:8px;}
+.login-logo h1{font-size:1.4rem;font-weight:900;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.login-logo p{font-size:.78rem;color:var(--txm);margin-top:3px;}
+
+/* MAIN LAYOUT */
+#admDash{display:none;min-height:100vh;}
+.adm-wrap{display:flex;min-height:100vh;}
+
+/* SIDEBAR */
+.sidebar{width:250px;background:var(--sidebar);position:fixed;top:0;left:0;height:100vh;z-index:200;overflow-y:auto;transition:.3s;display:flex;flex-direction:column;}
+.sidebar.collapsed{width:0;overflow:hidden;}
+.sb-logo{padding:18px 16px;border-bottom:1px solid rgba(255,255,255,.08);}
+.sb-logo h2{font-size:1.15rem;font-weight:900;color:#fff;font-family:'Poppins';}
+.sb-logo h2 span{background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.sb-logo p{font-size:.68rem;color:rgba(255,255,255,.35);margin-top:2px;}
+.sb-menu{padding:10px 0;flex:1;}
+.sb-section{padding:6px 16px 4px;font-size:.65rem;color:rgba(255,255,255,.3);font-weight:700;text-transform:uppercase;letter-spacing:1px;}
+.si{display:flex;align-items:center;gap:11px;padding:10px 16px;color:rgba(255,255,255,.55);cursor:pointer;transition:.2s;border:none;background:transparent;width:100%;font-size:.85rem;text-align:left;border-right:3px solid transparent;}
+.si:hover,.si.on{color:#fff;background:rgba(77,166,255,.15);border-right-color:var(--p);}
+.si i{width:18px;text-align:center;font-size:.9rem;}
+.si .badge{margin-left:auto;background:var(--red);color:#fff;font-size:.6rem;font-weight:800;padding:2px 6px;border-radius:20px;}
+
+/* MAIN CONTENT */
+.adm-main{margin-left:250px;flex:1;transition:.3s;}
+.adm-main.full{margin-left:0;}
+
+/* TOP BAR */
+.topbar{background:#fff;padding:12px 20px;display:flex;align-items:center;gap:12px;box-shadow:0 2px 12px rgba(0,0,0,.05);position:sticky;top:0;z-index:100;}
+.hmb-btn{width:36px;height:36px;border:none;background:var(--bg);border-radius:10px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;}
+.hmb-btn span{width:18px;height:2px;background:var(--tx);border-radius:2px;transition:.25s;}
+.topbar-title{font-weight:900;font-size:.95rem;flex:1;}
+.topbar-right{display:flex;gap:8px;align-items:center;}
+.top-btn{padding:7px 16px;border:none;border-radius:10px;font-size:.8rem;font-weight:800;cursor:pointer;font-family:inherit;transition:.2s;}
+.top-btn-grad{background:var(--grad);color:#fff;}
+.top-btn-out{background:var(--bg);color:var(--p);border:1.5px solid var(--p);}
+.top-btn:hover{opacity:.88;transform:translateY(-1px);}
+
+/* CONTENT AREA */
+.adm-content{padding:20px;}
+
+/* CARDS */
+.card{background:#fff;border-radius:var(--r);padding:18px;box-shadow:var(--sh2);margin-bottom:16px;}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.card-title{font-size:.93rem;font-weight:900;display:flex;align-items:center;gap:8px;}
+.card-title i{color:var(--p);}
+.card-btn{background:var(--grad);color:#fff;border:none;padding:7px 14px;border-radius:10px;font-size:.78rem;font-weight:800;cursor:pointer;font-family:inherit;}
+.card-btn:hover{opacity:.88;}
+
+/* GRID */
+.stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:16px;}
+@media(min-width:640px){.stat-grid{grid-template-columns:repeat(4,1fr);}}
+.stat-card{background:#fff;border-radius:var(--r);padding:16px;box-shadow:var(--sh2);position:relative;overflow:hidden;}
+.stat-card::after{content:'';position:absolute;top:-15px;right:-15px;width:70px;height:70px;border-radius:50%;opacity:.08;}
+.stat-card:nth-child(1)::after{background:var(--p);}
+.stat-card:nth-child(2)::after{background:var(--green);}
+.stat-card:nth-child(3)::after{background:var(--yellow);}
+.stat-card:nth-child(4)::after{background:var(--red);}
+.stat-ic{font-size:1.5rem;margin-bottom:8px;}
+.stat-val{font-size:1.4rem;font-weight:900;}
+.stat-lbl{font-size:.72rem;color:var(--txm);font-weight:700;margin-top:2px;}
+.stat-trend{font-size:.7rem;font-weight:700;margin-top:4px;}
+.up{color:var(--green);}
+.dn{color:var(--red);}
+
+/* FORM */
+.fg{margin-bottom:12px;}
+.fl{font-size:.8rem;font-weight:700;margin-bottom:5px;display:block;}
+.fi,.fsel{width:100%;padding:10px 13px;border:2px solid #e8eef4;border-radius:var(--rs);font-size:.85rem;color:var(--tx);background:var(--bg);transition:.25s;outline:none;}
+.fi:focus,.fsel:focus{border-color:var(--p);background:#fff;box-shadow:0 0 0 4px rgba(77,166,255,.1);}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+textarea.fi{resize:vertical;}
+.sub-btn{width:100%;background:var(--grad);color:#fff;border:none;border-radius:var(--rs);padding:13px;font-size:.9rem;font-weight:800;cursor:pointer;transition:.25s;box-shadow:0 4px 16px rgba(77,166,255,.3);}
+.sub-btn:hover{opacity:.9;transform:translateY(-1px);}
+
+/* TABLE */
+.tbl-wrap{overflow-x:auto;}
+.atb{width:100%;border-collapse:collapse;font-size:.8rem;min-width:500px;}
+.atb th{text-align:left;padding:10px 8px;border-bottom:2px solid var(--bg);font-weight:800;color:var(--txm);font-size:.72rem;text-transform:uppercase;letter-spacing:.5px;}
+.atb td{padding:10px 8px;border-bottom:1px solid #f5f8fb;vertical-align:middle;}
+.atb tr:hover td{background:var(--bg);}
+.atb tr:last-child td{border-bottom:none;}
+.ta{border:none;padding:5px 10px;border-radius:7px;cursor:pointer;font-size:.74rem;font-weight:700;font-family:inherit;transition:.15s;}
+.ta-ed{background:#E3F2FD;color:var(--p);}
+.ta-dl{background:#FFEBEE;color:var(--red);}
+.ta-vw{background:#E8F5E9;color:var(--green);}
+.ta:hover{opacity:.8;}
+.sbadge{padding:3px 9px;border-radius:20px;font-size:.7rem;font-weight:800;}
+.s-pending{background:#FFF8E1;color:var(--yellow);}
+.s-confirmed{background:#E3F2FD;color:var(--p);}
+.s-processing{background:#F3E5F5;color:#9C27B0;}
+.s-shipped{background:#E8F5E9;color:var(--green);}
+.s-delivered{background:#E8F5E9;color:#2E7D32;}
+.s-cancelled{background:#FFEBEE;color:var(--red);}
+
+/* TOGGLE */
+.tog{width:42px;height:23px;border-radius:50px;background:#e8eef4;position:relative;cursor:pointer;transition:.3s;flex-shrink:0;}
+.tog.on{background:var(--p);}
+.tog::after{content:'';position:absolute;width:17px;height:17px;border-radius:50%;background:#fff;top:3px;left:3px;transition:.3s;box-shadow:0 2px 6px rgba(0,0,0,.14);}
+.tog.on::after{left:22px;}
+.srow{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #f5f8fb;}
+.srow:last-child{border-bottom:none;}
+.slbl h4{font-size:.86rem;font-weight:800;}
+.slbl p{font-size:.73rem;color:var(--txm);margin-top:1px;}
+
+/* MODAL */
+.modal{display:none;position:fixed;inset:0;z-index:600;}
+.modal.open{display:flex;align-items:center;justify-content:center;}
+.modal-ov{position:absolute;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(5px);}
+.modal-box{position:relative;width:92%;max-width:480px;background:#fff;border-radius:var(--r);padding:24px;max-height:90vh;overflow-y:auto;animation:popIn .25s ease;z-index:1;}
+@keyframes popIn{from{transform:scale(.92);opacity:0}to{transform:scale(1);opacity:1}}
+.modal-close{position:absolute;top:14px;right:14px;width:30px;height:30px;border:none;background:var(--bg);border-radius:50%;cursor:pointer;font-size:.9rem;color:var(--txm);}
+.mtt{font-size:1rem;font-weight:900;margin-bottom:16px;}
+
+/* TOAST */
+.toast-wrap{position:fixed;top:68px;right:14px;z-index:1000;display:flex;flex-direction:column;gap:7px;}
+.toast{background:#fff;border-radius:12px;padding:11px 15px;box-shadow:0 8px 32px rgba(0,0,0,.12);display:flex;align-items:center;gap:9px;font-size:.83rem;font-weight:700;max-width:280px;animation:slideIn .3s ease;border-left:4px solid var(--p);}
+.toast.ok{border-left-color:var(--green);}
+.toast.err{border-left-color:var(--red);}
+.toast.warn{border-left-color:var(--yellow);}
+@keyframes slideIn{from{transform:translateX(110%);opacity:0}to{transform:translateX(0);opacity:1}}
+
+/* BANNER EDITOR */
+.banner-preview{border-radius:var(--r);overflow:hidden;margin-bottom:14px;position:relative;}
+.bp-inner{padding:20px;display:flex;align-items:center;justify-content:space-between;min-height:100px;}
+.color-swatch{width:32px;height:32px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:.25s;}
+.color-swatch.on{border-color:var(--p);transform:scale(1.15);box-shadow:0 0 0 3px rgba(77,166,255,.25);}
+
+/* NOTIFICATION COMPOSER */
+.notif-types{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
+.nt-btn{padding:7px 14px;border:2px solid #e8eef4;border-radius:50px;font-size:.78rem;font-weight:700;cursor:pointer;transition:.2s;background:#fff;font-family:inherit;}
+.nt-btn.on{border-color:var(--p);background:var(--bg);color:var(--p);}
+
+/* CATEGORY EDITOR */
+.cat-list{display:flex;flex-direction:column;gap:8px;}
+.cat-item{display:flex;align-items:center;gap:12px;padding:12px;background:var(--bg);border-radius:var(--rs);cursor:grab;}
+.cat-item:active{cursor:grabbing;}
+.cat-handle{color:var(--txm);font-size:.85rem;}
+.cat-info{flex:1;display:flex;align-items:center;gap:10px;}
+.cat-em-box{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.3rem;}
+.cat-nm{font-size:.85rem;font-weight:800;}
+.cat-cnt{font-size:.72rem;color:var(--txm);}
+
+/* PRODUCT COLOR TEXT */
+.color-text-wrap{display:flex;gap:7px;flex-wrap:wrap;}
+.ct-chip{display:flex;align-items:center;gap:6px;background:var(--bg);border-radius:20px;padding:4px 10px;font-size:.78rem;font-weight:700;}
+.ct-chip button{border:none;background:transparent;color:var(--red);cursor:pointer;font-size:.85rem;padding:0;}
+
+/* PRODUCT LINK */
+.prod-link-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #f5f8fb;}
+.prod-link-img{font-size:1.4rem;}
+.prod-link-info{flex:1;}
+.prod-link-name{font-size:.82rem;font-weight:800;}
+.prod-link-price{font-size:.75rem;color:var(--p);font-weight:700;}
+.prod-link-url{font-size:.7rem;color:var(--txm);word-break:break-all;margin-top:2px;}
+
+/* POPUP OFFER */
+.popup-preview{background:linear-gradient(135deg,#0f0c29,#302b63);border-radius:var(--r);padding:20px;text-align:center;margin-bottom:14px;}
+.popup-preview h3{color:#fff;font-size:1rem;font-weight:900;margin-bottom:5px;}
+.popup-preview p{color:rgba(255,255,255,.7);font-size:.8rem;}
+
+/* CHARTS */
+.bar-chart{display:flex;align-items:flex-end;gap:6px;height:80px;padding:8px 0;}
+.bc-bar{flex:1;border-radius:4px 4px 0 0;min-width:8px;position:relative;cursor:pointer;transition:.3s;}
+.bc-bar:hover{opacity:.8;}
+.bc-bar::after{content:attr(data-val);position:absolute;bottom:100%;left:50%;transform:translateX(-50%);background:var(--tx);color:#fff;padding:2px 7px;border-radius:5px;font-size:.65rem;white-space:nowrap;margin-bottom:3px;opacity:0;transition:.2s;pointer-events:none;}
+.bc-bar:hover::after{opacity:1;}
+
+/* TRACKING STATUS EDITOR */
+.trk-steps{display:flex;flex-direction:column;gap:8px;}
+.trk-step{display:flex;align-items:center;gap:12px;padding:12px;background:var(--bg);border-radius:var(--rs);}
+.trk-step-ic{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.85rem;}
+.t-done{background:var(--grad);color:#fff;}
+.t-cur{background:var(--yellow);color:#fff;}
+.t-pend{background:#e8eef4;color:var(--txm);}
+
+/* SPIN */
+.spin{width:36px;height:36px;border:3px solid var(--bg);border-top:3px solid var(--p);border-radius:50%;animation:sp .8s linear infinite;}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+/* LOADING */
+.ld-ov{position:fixed;inset:0;background:rgba(255,255,255,.97);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-thumb{background:var(--p);border-radius:99px;}
+
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%);box-shadow:none;}
+  .sidebar.open{transform:translateX(0);box-shadow:4px 0 24px rgba(0,0,0,.3);}
+  .adm-main{margin-left:0!important;}
+  .frow{grid-template-columns:1fr;}
+  .stat-grid{grid-template-columns:repeat(2,1fr);}
+}
+</style>
+</head>
+<body>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<!-- LOADING -->
+<div class="ld-ov" id="ldOv">
+  <div style="font-size:2.5rem">🔐</div>
+  <div class="spin"></div>
+  <p style="font-weight:700;color:var(--txm);font-size:.88rem">লোড হচ্ছে...</p>
+</div>
+
+<!-- MODAL -->
+<div class="modal" id="mainModal">
+  <div class="modal-ov" onclick="closeModal()"></div>
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<!-- LOGIN -->
+<div id="admLogin">
+  <div class="login-card">
+    <div class="login-logo">
+      <span class="emoji">🔐</span>
+      <h1>Admin Panel</h1>
+      <p id="loginSiteName">ShopBD Administration</p>
+    </div>
+    <div class="fg"><label class="fl">Admin Email</label><input type="email" class="fi" id="aEm" value="admin@shopbd.com" autocomplete="email"></div>
+    <div class="fg"><label class="fl">Password</label><input type="password" class="fi" id="aPw" value="admin123" autocomplete="current-password"></div>
+    <button class="sub-btn" onclick="doAdmLogin()"><i class="fas fa-lock"></i> লগইন করুন</button>
+    <button onclick="window.location.href='index.html'" style="width:100%;margin-top:9px;background:transparent;border:2px solid #e8eef4;color:var(--txm);padding:11px;border-radius:var(--rs);cursor:pointer;font-family:inherit;font-weight:700;">← শপে ফিরুন</button>
+  </div>
+</div>
+
+<!-- MAIN DASHBOARD -->
+<div id="admDash">
+  <div class="adm-wrap">
+    <!-- SIDEBAR -->
+    <div class="sidebar" id="sidebar">
+      <div class="sb-logo">
+        <h2 id="sbSiteName">Shop<span>BD</span></h2>
+        <p>Admin Panel v4.0</p>
+      </div>
+      <div class="sb-menu">
+        <div class="sb-section">প্রধান</div>
+        <button class="si on" data-sec="dashboard"><i class="fas fa-tachometer-alt"></i> ড্যাশবোর্ড</button>
+        <button class="si" data-sec="orders"><i class="fas fa-shopping-bag"></i> অর্ডার <span class="badge" id="pendingBadge">0</span></button>
+        <button class="si" data-sec="products"><i class="fas fa-box-open"></i> পণ্য ব্যবস্থাপনা</button>
+        <div class="sb-section">কাস্টমাইজেশন</div>
+        <button class="si" data-sec="siteSettings"><i class="fas fa-cog"></i> সাইট সেটিংস</button>
+        <button class="si" data-sec="banners"><i class="fas fa-images"></i> ব্যানার/স্লাইডার</button>
+        <button class="si" data-sec="categories"><i class="fas fa-tags"></i> ক্যাটাগরি</button>
+        <button class="si" data-sec="flashSale"><i class="fas fa-bolt"></i> ফ্ল্যাশ সেল</button>
+        <button class="si" data-sec="notifications"><i class="fas fa-bell"></i> নোটিফিকেশন</button>
+        <button class="si" data-sec="popupOffer"><i class="fas fa-gift"></i> পপআপ অফার</button>
+        <div class="sb-section">পেমেন্ট ও ডেলিভারি</div>
+        <button class="si" data-sec="payment"><i class="fas fa-credit-card"></i> পেমেন্ট সেটিংস</button>
+        <button class="si" data-sec="delivery"><i class="fas fa-truck"></i> ডেলিভারি চার্জ</button>
+        <button class="si" data-sec="coupons"><i class="fas fa-ticket-alt"></i> কুপন</button>
+        <div class="sb-section">অ্যাডভান্সড</div>
+        <button class="si" data-sec="tracking"><i class="fas fa-map-marker-alt"></i> অর্ডার ট্র্যাকিং</button>
+        <button class="si" data-sec="reviews"><i class="fas fa-star"></i> রিভিউ</button>
+        <button class="si" data-sec="social"><i class="fas fa-share-alt"></i> সোশ্যাল মিডিয়া</button>
+        <button class="si" data-sec="pixel"><i class="fab fa-facebook"></i> Facebook Pixel</button>
+        <button class="si" data-sec="users"><i class="fas fa-users"></i> ব্যবহারকারী</button>
+        <div class="sb-section">অ্যাকাউন্ট</div>
+        <button class="si" onclick="doAdmLogout()" style="color:#ff6b8a;"><i class="fas fa-sign-out-alt"></i> লগআউট</button>
+      </div>
+    </div>
+    <!-- MOBILE OVERLAY -->
+    <div id="sbOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:199;" onclick="closeSidebar()"></div>
+
+    <!-- MAIN -->
+    <div class="adm-main" id="admMain">
+      <div class="topbar">
+        <button class="hmb-btn" onclick="toggleSidebar()"><span></span><span></span><span></span></button>
+        <span class="topbar-title" id="secTitle">📊 ড্যাশবোর্ড</span>
+        <div class="topbar-right">
+          <button class="top-btn top-btn-grad" onclick="window.open('index.html','_blank')"><i class="fas fa-external-link-alt"></i> শপ দেখুন</button>
+        </div>
+      </div>
+      <div class="adm-content" id="admContent"></div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+import { getFirestore, collection, doc, setDoc, getDoc, getDocs, addDoc, updateDoc, deleteDoc, query, where, orderBy, serverTimestamp, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+import { getStorage, ref as stRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-storage.js";
+
+const app = initializeApp({
+  apiKey:"AIzaSyCuZdl1_7zTzz6w8NNEv5mWOdvMWTavPQc",
+  authDomain:"nafiz-973ba.firebaseapp.com",
+  databaseURL:"https://nafiz-973ba-default-rtdb.firebaseio.com",
+  projectId:"nafiz-973ba",
+  storageBucket:"nafiz-973ba.firebasestorage.app",
+  messagingSenderId:"747327923319",
+  appId:"1:747327923319:web:0c82021cb5891cd801d272",
+  measurementId:"G-691BRDPVZC"
+});
+const auth = getAuth(app);
+const db = getFirestore(app);
+const storage = getStorage(app);
+
+// ── Global State ─────────────────────────────────────────────
+window._cfg = {};
+window._products = [];
+window._orders = [];
+window._categories = [];
+window._banners = [];
+window._notifications = [];
+window._coupons = [];
+window._curSec = 'dashboard';
+
+// ── Default Config ────────────────────────────────────────────
+const DEFAULT_CFG = {
+  siteName:'ShopBD',
+  whatsapp:'8801700000000',
+  bkash:'01700000000',
+  nagad:'01700000000',
+  email:'info@shopbd.com',
+  phone:'01700-000000',
+  address:'ঢাকা, বাংলাদেশ',
+  fbPixel:'',
+  facebookUrl:'',
+  instagramUrl:'',
+  youtubeUrl:'',
+  tiktokUrl:'',
+  dhakaCharge:60,
+  nearCharge:80,
+  outsideCharge:120,
+  freeDeliveryMin:500,
+  popupEnabled:true,
+  popupTitle:'বিশেষ অফার!',
+  popupMsg:'প্রথম অর্ডারে FIRST100 কুপন ব্যবহার করুন।',
+  popupBg:'linear-gradient(135deg,#0f0c29,#302b63)',
+  flashSaleEnd:null,
+};
+
+const DEFAULT_CATS = [
+  {id:'c1',name:'পোশাক',emoji:'👗',color:'ci1',bg:'linear-gradient(135deg,#FFB3C1,#FF6B9D)',active:true},
+  {id:'c2',name:'ইলেকট্রনিক্স',emoji:'📱',color:'ci2',bg:'linear-gradient(135deg,#B3E5FC,#4DA6FF)',active:true},
+  {id:'c3',name:'সৌন্দর্য',emoji:'💄',color:'ci3',bg:'linear-gradient(135deg,#C8E6C9,#4CAF50)',active:true},
+  {id:'c4',name:'খাবার',emoji:'🍕',color:'ci4',bg:'linear-gradient(135deg,#FFE0B2,#FF9800)',active:true},
+  {id:'c5',name:'গৃহস্থালি',emoji:'🏠',color:'ci5',bg:'linear-gradient(135deg,#E1BEE7,#9C27B0)',active:true},
+  {id:'c6',name:'স্বাস্থ্য',emoji:'💊',color:'ci6',bg:'linear-gradient(135deg,#B2DFDB,#009688)',active:true},
+  {id:'c7',name:'খেলাধুলা',emoji:'⚽',color:'ci7',bg:'linear-gradient(135deg,#FFCCBC,#FF5722)',active:true},
+  {id:'c8',name:'শিশু',emoji:'🍼',color:'ci8',bg:'linear-gradient(135deg,#F8BBD0,#E91E63)',active:true},
+];
+
+const DEFAULT_BANNERS = [
+  {id:'b1',badge:'হট ডিল',title:'নতুন কালেকশন<br>এসে গেছে!',subtitle:'সেরা দামে সেরা পণ্য পান',btnText:'এখনই দেখুন',btnIcon:'fa-arrow-right',bg:'linear-gradient(135deg,#4DA6FF,#a78bfa)',emoji:'🛍️',imageUrl:'',active:true},
+  {id:'b2',badge:'ফ্ল্যাশ সেল',title:'৫০% পর্যন্ত<br>ছাড়!',subtitle:'সীমিত সময়ের অফার',btnText:'অফার দেখুন',btnIcon:'fa-bolt',bg:'linear-gradient(135deg,#34d399,#4DA6FF)',emoji:'💎',imageUrl:'',active:true},
+  {id:'b3',badge:'ফ্রি ডেলিভারি',title:'ঢাকায় বিনামূল্যে<br>ডেলিভারি!',subtitle:'৫০০ টাকার উপরে অর্ডারে',btnText:'শপিং করুন',btnIcon:'fa-shopping-bag',bg:'linear-gradient(135deg,#f472b6,#fb923c)',emoji:'🎁',imageUrl:'',active:true},
+  {id:'b4',badge:'প্রিমিয়াম',title:'এক্সক্লুসিভ<br>ব্র্যান্ড পণ্য',subtitle:'সেরা ব্র্যান্ডের পণ্য একটি জায়গায়',btnText:'ব্রাউজ করুন',btnIcon:'fa-crown',bg:'linear-gradient(135deg,#818cf8,#4DA6FF)',emoji:'👑',imageUrl:'',active:true},
+];
+
+const DEFAULT_COUPONS = [
+  {id:'cp1',code:'FIRST100',amount:100,type:'fixed',minOrder:0,maxUse:100,used:0,active:true},
+  {id:'cp2',code:'SAVE50',amount:50,type:'fixed',minOrder:200,maxUse:50,used:0,active:true},
+  {id:'cp3',code:'WELCOME150',amount:150,type:'fixed',minOrder:500,maxUse:30,used:0,active:true},
+];
+
+// ── Init ──────────────────────────────────────────────────────
+async function init(){
+  try{
+    const cfgDoc = await getDoc(doc(db,'settings','main'));
+    if(cfgDoc.exists()) window._cfg = {...DEFAULT_CFG,...cfgDoc.data()};
+    else window._cfg = {...DEFAULT_CFG};
+
+    const catDoc = await getDoc(doc(db,'settings','categories'));
+    window._categories = catDoc.exists() ? catDoc.data().list : DEFAULT_CATS;
+
+    const banDoc = await getDoc(doc(db,'settings','banners'));
+    window._banners = banDoc.exists() ? banDoc.data().list : DEFAULT_BANNERS;
+
+    const cpnDoc = await getDoc(doc(db,'settings','coupons'));
+    window._coupons = cpnDoc.exists() ? cpnDoc.data().list : DEFAULT_COUPONS;
+
+    const prodSnap = await getDocs(collection(db,'products'));
+    window._products = prodSnap.empty ? getSampleProds() : prodSnap.docs.map(d=>({id:d.id,...d.data()}));
+
+    const ordSnap = await getDocs(query(collection(db,'orders'),orderBy('createdAt','desc')));
+    window._orders = ordSnap.docs.map(d=>({fid:d.id,...d.data()}));
+
+    updateSiteNameUI();
+    updatePendingBadge();
+  }catch(e){
+    window._cfg = {...DEFAULT_CFG};
+    window._categories = DEFAULT_CATS;
+    window._banners = DEFAULT_BANNERS;
+    window._coupons = DEFAULT_COUPONS;
+    window._products = getSampleProds();
+    window._orders = JSON.parse(localStorage.getItem('bd_orders')||'[]').map(o=>({...o,fid:o.id}));
+  }
+  document.getElementById('ldOv').style.display='none';
+}
+
+function getSampleProds(){
+  return [
+    {id:'p1',name:'প্রিমিয়াম কটন শার্ট',brand:'Apex Fashion',price:1200,dp:799,cat:'পোশাক',emoji:'👕',stock:25,rat:4.8,revs:124,colors:['কালো','নীল','লাল'],sizes:['S','M','L','XL'],flash:true,feat:true,isNew:false,waNumber:''},
+    {id:'p2',name:'ওয়্যারলেস হেডফোন',brand:'SoundPro',price:3500,dp:2199,cat:'ইলেকট্রনিক্স',emoji:'🎧',stock:18,rat:4.8,revs:156,colors:['কালো','সাদা'],sizes:[],flash:true,feat:true,isNew:true,waNumber:''},
+    {id:'p3',name:'গ্লো ফেস ক্রিম',brand:'GlowUp',price:800,dp:549,cat:'সৌন্দর্য',emoji:'💆',stock:30,rat:4.9,revs:213,colors:[],sizes:['50ml','100ml'],flash:false,feat:true,isNew:true,waNumber:''},
+  ];
+}
+
+function updateSiteNameUI(){
+  const nm = window._cfg.siteName || 'ShopBD';
+  document.getElementById('sbSiteName').innerHTML = nm.slice(0,-2)+'<span>'+nm.slice(-2)+'</span>';
+  document.title = nm + ' - Admin Panel';
+}
+
+function updatePendingBadge(){
+  const cnt = window._orders.filter(o=>o.status==='pending'||!o.status).length;
+  const b = document.getElementById('pendingBadge');
+  if(b){ b.textContent = cnt; b.style.display = cnt>0?'':'none'; }
+}
+
+// ── Auth ──────────────────────────────────────────────────────
+window.doAdmLogin = async function(){
+  const em = document.getElementById('aEm').value.trim();
+  const pw = document.getElementById('aPw').value;
+  if(!em||!pw){ toast('তথ্য পূরণ করুন','err'); return; }
+  try{
+    const {user} = await signInWithEmailAndPassword(auth,em,pw);
+    document.getElementById('admLogin').style.display = 'none';
+    document.getElementById('admDash').style.display = 'block';
+    await init();
+    showSec('dashboard');
+    toast('Admin লগইন সফল! স্বাগতম 👋','ok');
+  }catch(e){
+    // Try local credentials
+    if((em==='admin@shopbd.com'||em===window._cfg?.adminEmail)&&pw==='admin123'){
+      document.getElementById('admLogin').style.display = 'none';
+      document.getElementById('admDash').style.display = 'block';
+      await init();
+      showSec('dashboard');
+      toast('Admin লগইন সফল! স্বাগতম 👋','ok');
+    }else{
+      toast('Email বা Password ভুল!','err');
+    }
+  }
+};
+
+window.doAdmLogout = async function(){
+  try{ await signOut(auth); }catch(e){}
+  document.getElementById('admDash').style.display = 'none';
+  document.getElementById('admLogin').style.display = 'flex';
+  toast('লগআউট সফল','ok');
+};
+
+// ── Sidebar ───────────────────────────────────────────────────
+window.toggleSidebar = function(){
+  const sb = document.getElementById('sidebar');
+  const ov = document.getElementById('sbOverlay');
+  const isMobile = window.innerWidth < 768;
+  if(isMobile){
+    sb.classList.toggle('open');
+    ov.style.display = sb.classList.contains('open') ? 'block' : 'none';
+  }else{
+    sb.classList.toggle('collapsed');
+    document.getElementById('admMain').classList.toggle('full');
+  }
+};
+window.closeSidebar = function(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sbOverlay').style.display = 'none';
+};
+
+document.querySelectorAll('.si[data-sec]').forEach(btn => {
+  btn.addEventListener('click',()=>{ showSec(btn.dataset.sec); closeSidebar(); });
+});
+
+// ── Section Router ────────────────────────────────────────────
+const SEC_TITLES = {
+  dashboard:'📊 ড্যাশবোর্ড',
+  orders:'🛍️ অর্ডার ব্যবস্থাপনা',
+  products:'📦 পণ্য ব্যবস্থাপনা',
+  siteSettings:'⚙️ সাইট সেটিংস',
+  banners:'🖼️ ব্যানার/স্লাইডার',
+  categories:'🏷️ ক্যাটাগরি',
+  flashSale:'⚡ ফ্ল্যাশ সেল',
+  notifications:'🔔 নোটিফিকেশন পাঠান',
+  popupOffer:'🎁 পপআপ অফার',
+  payment:'💳 পেমেন্ট সেটিংস',
+  delivery:'🚚 ডেলিভারি চার্জ',
+  coupons:'🎟️ কুপন',
+  tracking:'📍 অর্ডার ট্র্যাকিং',
+  reviews:'⭐ রিভিউ ব্যবস্থাপনা',
+  social:'📱 সোশ্যাল মিডিয়া',
+  pixel:'📌 Facebook Pixel',
+};
+
+window.showSec = function(sec){
+  window._curSec = sec;
+  document.querySelectorAll('.si[data-sec]').forEach(b=>b.classList.toggle('on',b.dataset.sec===sec));
+  document.getElementById('secTitle').textContent = SEC_TITLES[sec]||sec;
+  const c = document.getElementById('admContent');
+  const renders = {
+    dashboard:renderDashboard,
+    orders:renderOrders,
+    products:renderProducts,
+    siteSettings:renderSiteSettings,
+    banners:renderBanners,
+    categories:renderCategories,
+    flashSale:renderFlashSale,
+    notifications:renderNotifications,
+    popupOffer:renderPopupOffer,
+    payment:renderPayment,
+    delivery:renderDelivery,
+    coupons:renderCoupons,
+    tracking:renderTracking,
+    reviews:renderReviews,
+    social:renderSocial,
+    pixel:renderPixel,
+  };
+  (renders[sec]||renderDashboard)(c);
+};
+
+// ── DASHBOARD ─────────────────────────────────────────────────
+function renderDashboard(c){
+  const ords = window._orders;
+  const rev = ords.reduce((s,o)=>s+(o.total||0),0);
+  const pending = ords.filter(o=>o.status==='pending'||!o.status).length;
+  c.innerHTML = `
+  <div class="stat-grid">
+    <div class="stat-card"><div class="stat-ic">📦</div><div class="stat-val">${window._products.length}</div><div class="stat-lbl">মোট পণ্য</div><div class="stat-trend up">↑ সক্রিয়</div></div>
+    <div class="stat-card"><div class="stat-ic">🛍️</div><div class="stat-val">${ords.length}</div><div class="stat-lbl">মোট অর্ডার</div><div class="stat-trend up">↑ ${pending} পেন্ডিং</div></div>
+    <div class="stat-card"><div class="stat-ic">💰</div><div class="stat-val">৳${rev.toLocaleString()}</div><div class="stat-lbl">মোট বিক্রয়</div><div class="stat-trend up">↑ এই মাসে</div></div>
+    <div class="stat-card"><div class="stat-ic">⏳</div><div class="stat-val">${pending}</div><div class="stat-lbl">পেন্ডিং অর্ডার</div><div class="stat-trend ${pending>0?'dn':'up'}">${pending>0?'⚠️ মনোযোগ দিন':'✓ ঠিকঠাক'}</div></div>
+  </div>
+  <!-- Revenue Chart -->
+  <div class="card">
+    <div class="card-header"><div class="card-title"><i class="fas fa-chart-bar"></i> সাপ্তাহিক বিক্রয়</div></div>
+    <div class="bar-chart" id="revChart"></div>
+    <div style="display:flex;justify-content:space-between;font-size:.65rem;color:var(--txm);padding:0 0 4px">
+      <span>রবি</span><span>সোম</span><span>মঙ্গল</span><span>বুধ</span><span>বৃহঃ</span><span>শুক্র</span><span>শনি</span>
+    </div>
+  </div>
+  <!-- Recent Orders -->
+  <div class="card">
+    <div class="card-header"><div class="card-title"><i class="fas fa-list"></i> সাম্প্রতিক অর্ডার</div><button class="card-btn" onclick="showSec('orders')">সব দেখুন</button></div>
+    <div class="tbl-wrap">
+      <table class="atb">
+        <thead><tr><th>অর্ডার ID</th><th>গ্রাহক</th><th>পণ্যসমূহ</th><th>মোট</th><th>স্ট্যাটাস</th><th>অ্যাকশন</th></tr></thead>
+        <tbody>
+          ${ords.slice(0,5).map(o=>`
+            <tr>
+              <td style="color:var(--p);font-weight:800;white-space:nowrap"><a href="#" onclick="showSec('orders');setTimeout(()=>viewOrder('${o.id||o.fid}'),100);return false">#${(o.id||o.fid||'').slice(-8)}</a></td>
+              <td><div style="font-weight:700">${o.customer?.name||'-'}</div><div style="font-size:.72rem;color:var(--txm)">${o.customer?.phone||''}</div></td>
+              <td>${(o.items||[]).slice(0,2).map(it=>`<span style="font-size:1.1rem">${it.emoji||'📦'}</span>`).join('')}${(o.items?.length||0)>2?`+${o.items.length-2}`:''}</td>
+              <td style="font-weight:800">৳${(o.total||0).toLocaleString()}</td>
+              <td><span class="sbadge s-${o.status||'pending'}">${statusName(o.status)}</span></td>
+              <td><button class="ta ta-vw" onclick="viewOrderFull('${o.fid||o.id}')">বিস্তারিত</button></td>
+            </tr>`).join('')||'<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--txm)">কোনো অর্ডার নেই</td></tr>'}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <!-- Quick Actions -->
+  <div class="card">
+    <div class="card-header"><div class="card-title"><i class="fas fa-bolt"></i> দ্রুত অ্যাকশন</div></div>
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">
+      ${[
+        {icon:'fa-plus',label:'নতুন পণ্য যোগ',sec:'products',fn:'admAddProd'},
+        {icon:'fa-bell',label:'নোটিফিকেশন পাঠান',sec:'notifications'},
+        {icon:'fa-ticket-alt',label:'নতুন কুপন',sec:'coupons',fn:'admAddCoupon'},
+        {icon:'fa-images',label:'ব্যানার এডিট',sec:'banners'},
+      ].map(a=>`<button onclick="showSec('${a.sec}')${a.fn?`;setTimeout(()=>${a.fn}(),100)`:''}" style="background:var(--bg);border:2px solid #e8eef4;border-radius:var(--rs);padding:14px;cursor:pointer;font-family:inherit;transition:.2s;text-align:center" onmouseover="this.style.borderColor='var(--p)'" onmouseout="this.style.borderColor='#e8eef4'"><i class="fas ${a.icon}" style="color:var(--p);font-size:1.2rem;display:block;margin-bottom:6px"></i><div style="font-size:.78rem;font-weight:800">${a.label}</div></button>`).join('')}
+    </div>
+  </div>`;
+  // Chart
+  setTimeout(()=>{
+    const chart = document.getElementById('revChart');
+    if(!chart) return;
+    const vals = [3200,4100,2800,5600,4900,7200,6100];
+    const max = Math.max(...vals);
+    chart.innerHTML = vals.map((v,i)=>`<div class="bc-bar" style="height:${Math.floor(v/max*100)}%;background:${i===5?'var(--p)':'rgba(77,166,255,.3)'}" data-val="৳${v.toLocaleString()}"></div>`).join('');
+  },100);
+}
+
+function statusName(s){ return {pending:'পেন্ডিং',confirmed:'নিশ্চিত',processing:'প্রসেসিং',shipped:'শিপিং',delivered:'ডেলিভারি',cancelled:'বাতিল'}[s||'pending']||s||'পেন্ডিং'; }
+
+// ── ORDERS ────────────────────────────────────────────────────
+function renderOrders(c){
+  c.innerHTML = `
+  <div class="card">
+    <div class="card-header"><div class="card-title"><i class="fas fa-filter"></i> ফিল্টার</div></div>
+    <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px" id="ordFilters">
+      ${['সব','pending','confirmed','processing','shipped','delivered','cancelled'].map((f,i)=>`<button class="ta ${i===0?'ta-vw':''}" style="border-radius:50px;padding:6px 16px" onclick="filterOrders('${f}',this)">${i===0?'সব':statusName(f)}</button>`).join('')}
+    </div>
+    <div class="tbl-wrap">
+      <table class="atb" id="ordTbl">
+        <thead><tr><th>অর্ডার ID</th><th>গ্রাহক</th><th>পণ্য</th><th>মোট</th><th>পেমেন্ট</th><th>স্ট্যাটাস</th><th>আপডেট</th><th>অ্যাকশন</th></tr></thead>
+        <tbody id="ordTbody"></tbody>
+      </table>
+    </div>
+  </div>`;
+  renderOrderTable(window._orders);
+}
+
+function renderOrderTable(ords){
+  const tbody = document.getElementById('ordTbody');
+  if(!tbody) return;
+  tbody.innerHTML = ords.map(o=>`
+    <tr id="orow-${o.id||o.fid}">
+      <td style="color:var(--p);font-weight:800;white-space:nowrap">#${(o.id||o.fid||'').slice(-8)}</td>
+      <td><div style="font-weight:700;font-size:.82rem">${o.customer?.name||'-'}</div><div style="font-size:.7rem;color:var(--txm)">${o.customer?.phone||''}</div><div style="font-size:.7rem;color:var(--txm)">${o.customer?.district||''}</div></td>
+      <td><div style="display:flex;gap:3px">${(o.items||[]).slice(0,3).map(it=>`<span title="${it.name}" style="font-size:1.2rem">${it.emoji||'📦'}</span>`).join('')}</div><div style="font-size:.7rem;color:var(--txm);margin-top:2px">${o.items?.length||0} পণ্য</div></td>
+      <td><div style="font-weight:800;color:var(--p)">৳${(o.total||0).toLocaleString()}</div><div style="font-size:.7rem;color:var(--txm)">${o.pay||'-'}</div></td>
+      <td><div style="font-size:.75rem">${o.pay||'COD'}</div>${o.trxId?`<div style="font-size:.7rem;color:var(--p);font-weight:700">TRX: ${o.trxId}</div>`:''}</td>
+      <td><span class="sbadge s-${o.status||'pending'}">${statusName(o.status)}</span></td>
+      <td>
+        <select onchange="updateOrderStatus('${o.fid||o.id}',this.value)" style="border:1.5px solid #e8eef4;border-radius:8px;padding:5px 8px;font-size:.75rem;font-family:inherit;outline:none;background:#fff">
+          ${['pending','confirmed','processing','shipped','delivered','cancelled'].map(s=>`<option value="${s}" ${(o.status||'pending')===s?'selected':''}>${statusName(s)}</option>`).join('')}
+        </select>
+      </td>
+      <td style="white-space:nowrap">
+        <button class="ta ta-vw" onclick="viewOrder('${o.id||o.fid}')">দেখুন</button>
+      </td>
+    </tr>`).join('')||'<tr><td colspan="8" style="text-align:center;padding:20px;color:var(--txm)">কোনো অর্ডার নেই</td></tr>';
+}
+
+window.filterOrders = function(f,btn){
+  document.querySelectorAll('#ordFilters button').forEach(b=>b.className='ta');
+  btn.className='ta ta-vw';
+  const ords = f==='সব' ? window._orders : window._orders.filter(o=>(o.status||'pending')===f);
+  renderOrderTable(ords);
+};
+
+window.updateOrderStatus = async function(fid,status){
+  const ord = window._orders.find(o=>o.fid===fid||o.id===fid);
+  if(ord){ ord.status = status; }
+  // Update localStorage too
+  try{
+    const localOrds = JSON.parse(localStorage.getItem('bd_orders')||'[]');
+    const lo = localOrds.find(o=>o.id===fid||o.id===(ord?.id));
+    if(lo){ lo.status = status; localStorage.setItem('bd_orders',JSON.stringify(localOrds)); }
+  }catch(e){}
+  try{
+    if(fid && fid.length>10){ await updateDoc(doc(db,'orders',fid),{status,updatedAt:serverTimestamp()}); }
+    else{
+      const q = query(collection(db,'orders'),where('id','==',fid));
+      const s = await getDocs(q);
+      s.docs.forEach(d=>updateDoc(d.ref,{status,updatedAt:serverTimestamp()}));
+    }
+  }catch(e){}
+  updatePendingBadge();
+  toast(`অর্ডার স্ট্যাটাস "${statusName(status)}" এ আপডেট হয়েছে ✓`,'ok');
+  // Send notification to user
+  sendOrderStatusNotif(ord,status);
+};
+
+function sendOrderStatusNotif(ord,status){
+  if(!ord) return;
+  const msgs = {
+    confirmed:'আপনার অর্ডার নিশ্চিত হয়েছে! শীঘ্রই পাঠানো হবে।',
+    processing:'আপনার পণ্য প্যাক করা হচ্ছে।',
+    shipped:'আপনার পণ্য কুরিয়ারে পাঠানো হয়েছে!',
+    delivered:'আপনার পণ্য ডেলিভারি হয়েছে। ধন্যবাদ!',
+    cancelled:'দুঃখিত, আপনার অর্ডারটি বাতিল হয়েছে।',
+  };
+  if(!msgs[status]) return;
+  const notifs = JSON.parse(localStorage.getItem('bd_notifs')||'[]');
+  notifs.unshift({id:'n'+Date.now(),title:`অর্ডার ${statusName(status)}! #${(ord.id||'').slice(-8)}`,msg:msgs[status],icon:'fa-box',color:'var(--p)',time:'এইমাত্র',read:false,orderId:ord.id});
+  localStorage.setItem('bd_notifs',JSON.stringify(notifs));
+}
+
+window.viewOrder = function(id){
+  const o = window._orders.find(x=>x.id===id||x.fid===id);
+  if(!o){ toast('অর্ডার পাওয়া যায়নি','err'); return; }
+  document.getElementById('modalBody').innerHTML = `
+    <div class="mtt">অর্ডার বিস্তারিত #${(o.id||o.fid||'').slice(-8)}</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
+      <div style="background:var(--bg);border-radius:var(--rs);padding:10px"><div style="font-size:.7rem;color:var(--txm);font-weight:700">গ্রাহক</div><div style="font-weight:800">${o.customer?.name||'-'}</div><div style="font-size:.78rem;color:var(--txm)">${o.customer?.phone||''}</div></div>
+      <div style="background:var(--bg);border-radius:var(--rs);padding:10px"><div style="font-size:.7rem;color:var(--txm);font-weight:700">ঠিকানা</div><div style="font-size:.8rem;font-weight:700">${o.customer?.address||o.customer?.addr||'-'}</div><div style="font-size:.75rem;color:var(--txm)">${o.customer?.district||o.customer?.dist||''}</div></div>
+      <div style="background:var(--bg);border-radius:var(--rs);padding:10px"><div style="font-size:.7rem;color:var(--txm);font-weight:700">মোট</div><div style="font-weight:800;color:var(--p)">৳${(o.total||0).toLocaleString()}</div></div>
+      <div style="background:var(--bg);border-radius:var(--rs);padding:10px"><div style="font-size:.7rem;color:var(--txm);font-weight:700">পেমেন্ট</div><div style="font-weight:800">${o.pay||'-'}</div>${o.trxId?`<div style="font-size:.73rem;color:var(--p);font-weight:700">TRX: ${o.trxId}</div>`:''}</div>
+    </div>
+    <div style="font-size:.85rem;font-weight:800;margin-bottom:8px">পণ্যসমূহ:</div>
+    ${(o.items||[]).map(it=>`
+      <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f5f8fb">
+        <span style="font-size:1.5rem">${it.emoji||'📦'}</span>
+        <div style="flex:1"><div style="font-size:.82rem;font-weight:800">${it.name}</div>${it.sz?`<div style="font-size:.72rem;color:var(--txm)">সাইজ: ${it.sz}</div>`:''}</div>
+        <div><div style="font-weight:800;color:var(--p)">৳${(it.price*it.qty).toLocaleString()}</div><div style="font-size:.72rem;color:var(--txm)">×${it.qty}</div></div>
+      </div>`).join('')}
+    <div style="background:var(--bg);border-radius:var(--rs);padding:12px;margin-top:12px">
+      <div style="display:flex;justify-content:space-between;font-size:.82rem;padding:4px 0"><span>পণ্যের মোট</span><span style="font-weight:700">৳${(o.sub||o.subtotal||0).toLocaleString()}</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:.82rem;padding:4px 0"><span>ডেলিভারি</span><span style="font-weight:700">৳${o.del||60}</span></div>
+      ${(o.disc||o.discount)?`<div style="display:flex;justify-content:space-between;font-size:.82rem;padding:4px 0;color:var(--green)"><span>ছাড়</span><span style="font-weight:700">-৳${o.disc||o.discount}</span></div>`:''}
+      <div style="display:flex;justify-content:space-between;font-size:.92rem;padding:8px 0 0;font-weight:900;color:var(--p)"><span>সর্বমোট</span><span>৳${(o.total||0).toLocaleString()}</span></div>
+    </div>
+    <!-- Status Update -->
+    <div style="margin-top:14px">
+      <label class="fl">স্ট্যাটাস পরিবর্তন করুন</label>
+      <select class="fsel" onchange="updateOrderStatus('${o.fid||o.id}',this.value)">
+        ${['pending','confirmed','processing','shipped','delivered','cancelled'].map(s=>`<option value="${s}" ${(o.status||'pending')===s?'selected':''}>${statusName(s)}</option>`).join('')}
+      </select>
+    </div>
+    <!-- Product Links -->
+    <div style="margin-top:12px;background:var(--bg);border-radius:var(--rs);padding:10px">
+      <div style="font-size:.75rem;font-weight:800;color:var(--txm);margin-bottom:6px">পণ্যের লিংক</div>
+      ${(o.items||[]).map(it=>`<div class="prod-link-row"><span class="prod-link-img">${it.emoji||'📦'}</span><div class="prod-link-info"><div class="prod-link-name">${it.name}</div><div class="prod-link-url">${window.location.origin}/index.html#product-${it.id||''}</div></div><button onclick="navigator.clipboard?.writeText('${window.location.origin}/index.html#product-${it.id||''}')" style="background:transparent;border:1.5px solid var(--p);color:var(--p);border-radius:8px;padding:4px 10px;font-size:.72rem;cursor:pointer;font-family:inherit">কপি</button></div>`).join('')}
+    </div>`;
+  openModal();
+};
+
+// ── PRODUCTS ──────────────────────────────────────────────────
+function renderProducts(c){
+  c.innerHTML = `
+  <div class="card">
+    <div class="card-header"><div class="card-title"><i class="fas fa-box-open"></i> পণ্য তালিকা (${window._products.length})</div><button class="card-btn" onclick="admAddProd()">+ নতুন পণ্য</button></div>
+    <!-- Filter -->
+    <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px">
+      <button class="ta ta-vw" style="border-radius:50px" onclick="filterProds('সব',this)">সব</button>
+      ${window._categories.map(c=>`<button class="ta" style="border-radius:50px" onclick="filterProds('${c.name}',this)">${c.emoji} ${c.name}</button>`).join('')}
+    </div>
+    <div class="tbl-wrap">
+      <table class="atb">
+        <thead><tr><th>পণ্য</th><th>মূল্য</th><th>স্টক</th><th>ক্যাটাগরি</th><th>ট্যাগ</th><th>WhatsApp</th><th>অ্যাকশন</th></tr></thead>
+        <tbody id="prodTbody">
+          ${window._products.map(p=>`
+            <tr id="ptr-${p.id}">
+              <td>
+                <div style="display:flex;align-items:center;gap:8px">
+                  <div style="width:38px;height:38px;border-radius:10px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;overflow:hidden">${p.image?`<img src="${p.image}" style="width:100%;height:100%;object-fit:cover">`:p.emoji||'📦'}</div>
+                  <div><strong style="font-size:.82rem">${p.name}</strong><div style="font-size:.7rem;color:var(--txm)">${p.brand||''}</div></div>
+                </div>
+              </td>
+              <td><div style="font-weight:800;color:var(--p)">৳${(p.dp||0).toLocaleString()}</div><div style="text-decoration:line-through;font-size:.72rem;color:var(--txm)">৳${(p.price||0).toLocaleString()}</div></td>
+              <td><span style="font-weight:800;color:${p.stock>5?'var(--green)':p.stock>0?'var(--yellow)':'var(--red)'}">${p.stock||0}</span></td>
+              <td><span style="font-size:.78rem">${p.cat||'-'}</span></td>
+              <td>
+                ${p.flash?'<span class="sbadge s-shipped" style="margin-right:3px">⚡ ফ্ল্যাশ</span>':''}
+                ${p.feat?'<span class="sbadge s-confirmed" style="margin-right:3px">⭐ ফিচার্ড</span>':''}
+                ${p.isNew?'<span class="sbadge s-processing">🆕 নতুন</span>':''}
+              </td>
+              <td><div style="font-size:.75rem;color:var(--txm)">${p.waNumber||window._cfg.whatsapp||'-'}</div></td>
+              <td style="white-space:nowrap">
+                <button class="ta ta-ed" onclick="admEditProd('${p.id}')">সম্পাদন</button>
+                <button class="ta ta-dl" onclick="admDelProd('${p.id}')">মুছুন</button>
+              </td>
+            </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
+window.filterProds = function(cat,btn){
+  document.querySelectorAll('#prodTbody tr').forEach(r=>{
+    const id = r.id.replace('ptr-','');
+    const p = window._products.find(x=>x.id===id);
+    r.style.display = (cat==='সব'||p?.cat===cat)?'':'none';
+  });
+  document.querySelectorAll('[onclick^="filterProds"]').forEach(b=>b.className='ta');
+  btn.className='ta ta-vw';
+};
+
+window.admAddProd = function(){
+  showProductModal(null);
+};
+window.admEditProd = function(id){
+  const p = window._products.find(x=>x.id===id);
+  showProductModal(p);
+};
+
+function showProductModal(p){
+  const isEdit = !!p;
+  document.getElementById('modalBody').innerHTML = `
+    <div class="mtt">${isEdit?'পণ্য সম্পাদনা':'নতুন পণ্য যোগ করুন'}</div>
+    <div class="frow">
+      <div class="fg"><label class="fl">পণ্যের নাম *</label><input type="text" class="fi" id="pf_nm" value="${p?.name||''}" placeholder="পণ্যের নাম"></div>
+      <div class="fg"><label class="fl">ব্র্যান্ড</label><input type="text" class="fi" id="pf_br" value="${p?.brand||''}" placeholder="ব্র্যান্ড"></div>
+    </div>
+    <div class="frow">
+      <div class="fg"><label class="fl">মূল মূল্য (৳) *</label><input type="number" class="fi" id="pf_pr" value="${p?.price||''}" placeholder="0"></div>
+      <div class="fg"><label class="fl">ছাড়ের মূল্য (৳) *</label><input type="number" class="fi" id="pf_dp" value="${p?.dp||''}" placeholder="0"></div>
+    </div>
+    <div class="frow">
+      <div class="fg"><label class="fl">স্টক *</label><input type="number" class="fi" id="pf_st" value="${p?.stock||''}" placeholder="0"></div>
+      <div class="fg"><label class="fl">ইমোজি</label><input type="text" class="fi" id="pf_em" value="${p?.emoji||'📦'}"></div>
+    </div>
+    <div class="fg"><label class="fl">ক্যাটাগরি *</label>
+      <select class="fsel" id="pf_cat">${window._categories.map(c=>`<option value="${c.name}" ${p?.cat===c.name?'selected':''}>${c.emoji} ${c.name}</option>`).join('')}</select>
+    </div>
+    <div class="fg"><label class="fl">রঙ (টেক্সট, কমা দিয়ে)</label>
+      <input type="text" class="fi" id="pf_colors" value="${(p?.colors||[]).join(', ')}" placeholder="কালো, সাদা, লাল, নীল">
+      <div style="font-size:.72rem;color:var(--txm);margin-top:4px">উদাহরণ: কালো, সাদা, লাল</div>
+    </div>
+    <div class="fg"><label class="fl">সাইজ (কমা দিয়ে)</label><input type="text" class="fi" id="pf_sz" value="${(p?.sizes||[]).join(', ')}" placeholder="S,M,L,XL"></div>
+    <div class="fg"><label class="fl">বিবরণ</label><textarea class="fi" id="pf_de" rows="3" placeholder="পণ্যের বিস্তারিত...">${p?.desc||''}</textarea></div>
+    <div class="fg"><label class="fl">পণ্যের ছবি URL</label>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input type="text" class="fi" id="pf_img" value="${p?.image||''}" placeholder="https://..." style="flex:1">
+        <button onclick="uploadProductImage('pf_img_file','pf_img_prev')" style="background:var(--bg);border:2px solid var(--p);color:var(--p);border-radius:var(--rs);padding:8px 12px;cursor:pointer;font-size:.8rem;white-space:nowrap"><i class="fas fa-upload"></i> আপলোড</button>
+      </div>
+      <input type="file" id="pf_img_file" accept="image/*" style="display:none">
+      <div id="pf_img_prev" style="margin-top:6px">${p?.image?`<img src="${p.image}" style="width:60px;height:60px;object-fit:cover;border-radius:10px">`:''}</div>
+    </div>
+    <div class="fg"><label class="fl">WhatsApp নম্বর (এই পণ্যের জন্য)</label><input type="tel" class="fi" id="pf_wa" value="${p?.waNumber||''}" placeholder="8801XXXXXXXXX (খালি রাখলে ডিফল্ট নম্বর)"></div>
+    <div style="display:flex;gap:12px;margin-bottom:14px;flex-wrap:wrap">
+      <label style="display:flex;align-items:center;gap:7px;font-size:.83rem;cursor:pointer"><input type="checkbox" id="pf_fl" ${p?.flash?'checked':''} style="accent-color:var(--p)"> ⚡ ফ্ল্যাশ সেল</label>
+      <label style="display:flex;align-items:center;gap:7px;font-size:.83rem;cursor:pointer"><input type="checkbox" id="pf_ft" ${p?.feat?'checked':''} style="accent-color:var(--p)"> ⭐ ফিচার্ড</label>
+      <label style="display:flex;align-items:center;gap:7px;font-size:.83rem;cursor:pointer"><input type="checkbox" id="pf_nw" ${p?.isNew?'checked':''} style="accent-color:var(--p)"> 🆕 নতুন পণ্য</label>
+    </div>
+    <button class="sub-btn" onclick="admSaveProd('${isEdit?p.id:''}')">💾 ${isEdit?'আপডেট করুন':'পণ্য সেভ করুন'}</button>`;
+  openModal();
+}
+
+window.admSaveProd = async function(editId){
+  const nm = document.getElementById('pf_nm')?.value.trim();
+  const pr = parseInt(document.getElementById('pf_pr')?.value||0);
+  const dp = parseInt(document.getElementById('pf_dp')?.value||0);
+  const st = parseInt(document.getElementById('pf_st')?.value||0);
+  if(!nm||!pr||!dp){ toast('আবশ্যিক তথ্য পূরণ করুন','err'); return; }
+  const colorsRaw = document.getElementById('pf_colors')?.value||'';
+  const colors = colorsRaw.split(',').map(s=>s.trim()).filter(Boolean);
+  const sizesRaw = document.getElementById('pf_sz')?.value||'';
+  const sizes = sizesRaw.split(',').map(s=>s.trim()).filter(Boolean);
+  const pData = {
+    name:nm, brand:document.getElementById('pf_br')?.value||'',
+    price:pr, dp, stock:st, cat:document.getElementById('pf_cat')?.value||window._categories[0]?.name,
+    emoji:document.getElementById('pf_em')?.value||'📦',
+    desc:document.getElementById('pf_de')?.value||'',
+    image:document.getElementById('pf_img')?.value||'',
+    waNumber:document.getElementById('pf_wa')?.value||'',
+    colors, sizes,
+    flash:document.getElementById('pf_fl')?.checked,
+    feat:document.getElementById('pf_ft')?.checked,
+    isNew:document.getElementById('pf_nw')?.checked,
+    rat:4.5, revs:0,
+  };
+  try{
+    if(editId){
+      const existing = window._products.find(x=>x.id===editId);
+      Object.assign(existing,pData);
+      await updateDoc(doc(db,'products',editId),{...pData,updAt:serverTimestamp()});
+    }else{
+      pData.createdAt = serverTimestamp();
+      const ref = await addDoc(collection(db,'products'),pData);
+      window._products.push({id:ref.id,...pData});
+    }
+    closeModal();
+    toast(editId?'পণ্য আপডেট হয়েছে! ✓':'পণ্য যোগ হয়েছে! ✓','ok');
+    showSec('products');
+  }catch(e){
+    // fallback local
+    if(!editId){ const id='p'+Date.now(); window._products.push({id,...pData}); }
+    closeModal();
+    toast('পণ্য সেভ হয়েছে (লোকাল) ✓','warn');
+    showSec('products');
+  }
+};
+
+window.admDelProd = async function(id){
+  if(!confirm('এই পণ্য মুছে ফেলবেন?')) return;
+  window._products = window._products.filter(p=>p.id!==id);
+  try{ await deleteDoc(doc(db,'products',id)); }catch(e){}
+  toast('পণ্য মুছে ফেলা হয়েছে','warn');
+  showSec('products');
+};
+
+// ── SITE SETTINGS ─────────────────────────────────────────────
+function renderSiteSettings(c){
+  const cfg = window._cfg;
+  c.innerHTML = `
+  <div class="card">
+    <div class="card-header"><div class="card-title"><i class="fas fa-globe"></i> সাইটের সাধারণ তথ্য</div></div>
+    <div class="fg"><label class="fl">সাইটের নাম (এটি সর্বত্র পরিবর্তন হবে)</label><input type="text" class="fi" id="cfg_nm" value="${cfg.siteName||'ShopBD'}" placeholder="আপনার শপের নাম"></div>
+    <div class="fg"><label class="fl">সাব-টাইটেল</label><input type="text" class="fi" id="cfg_sub" value="${cfg.siteSubtitle||'বাংলাদেশের সেরা শপিং প্ল্যাটফর্ম'}" placeholder="ছোট বিবরণ"></div>
+    <div class="fg"><label class="fl">যোগাযোগ ফোন</label><input type="tel" class="fi" id="cfg_ph" value="${cfg.phone||'01700-000000'}" placeholder="01700-000000"></div>
+    <div class="fg"><label class="fl">যোগাযোগ ইমেইল</label><input type="email" class="fi" id="cfg_em" value="${cfg.email||'info@shopbd.com'}" placeholder="info@shopbd.com"></div>
+    <div class="fg"><label class="fl">ঠিকানা</label><input type="text" class="fi" id="cfg_addr" value="${cfg.address||''}" placeholder="ঢাকা, বাংলাদেশ"></div>
+    <div class="fg"><label class="fl">WhatsApp ডিফল্ট নম্বর (দেশ কোড সহ)</label><input type="text" class="fi" id="cfg_wa" value="${cfg.whatsapp||'8801700000000'}" placeholder="8801XXXXXXXXX"></div>
+    <div class="srow"><div class="slbl"><h4>মেইনটেন্যান্স মোড</h4><p>সাময়িকভাবে শপ বন্ধ</p></div><div class="tog ${cfg.maintenance?'on':''}" onclick="this.classList.toggle('on')" id="tog_maint"></div></div>
+    <div class="srow"><div class="slbl"><h4>নতুন নিবন্ধন</h4><p>নতুন ব্যবহারকারী নিবন্ধন</p></div><div class="tog ${cfg.allowReg!==false?'on':''}" id="tog_reg" onclick="this.classList.toggle('on')"></div></div>
+    <div style="display:flex;gap:9px;margin-top:14px">
+      <button class="sub-btn" onclick="saveSiteSettings()" style="flex:1">💾 সেটিংস সেভ করুন</button>
+      <button onclick="exportSettings()" style="background:var(--bg);border:2px solid var(--p);color:var(--p);border-radius:var(--rs);padding:11px 16px;font-weight:800;cursor:pointer;font-size:.85rem;font-family:inherit"><i class="fas fa-download"></i> এক্সপোর্ট</button>
+      <button onclick="importSettings()" style="background:var(--bg);border:2px solid var(--green);color:var(--green);border-radius:var(--rs);padding:11px 16px;font-weight:800;cursor:pointer;font-size:.85rem;font-family:inherit"><i class="fas fa-upload"></i> ইম্পোর্ট</button>
+    </div>
+  </div>`;
+}
+
+window.saveSiteSettings = async function(){
+  const nm = document.getElementById('cfg_nm')?.value.trim()||'ShopBD';
+  window._cfg.siteName = nm;
+  window._cfg.siteSubtitle = document.getElementById('cfg_sub')?.value||'';
+  window._cfg.phone = document.getElementById('cfg_ph')?.value||'';
+  window._cfg.email = document.getElementById('cfg_em')?.value||'';
+  window._cfg.address = document.getElementById('cfg_addr')?.value||'';
+  window._cfg.whatsapp = document.getElementById('cfg_wa')?.value||'';
+  window._cfg.maintenance = document.getElementById('tog_maint')?.classList.contains('on');
+  window._cfg.allowReg = document.getElementById('tog_reg')?.classList.contains('on');
+  try{
+    await setDoc(doc(db,'settings','main'),{...window._cfg,updAt:serverTimestamp()},{merge:true});
+    updateSiteNameUI();
+    toast('সেটিংস সেভ হয়েছে! ✓','ok');
+  }catch(e){
+    localStorage.setItem('bd_cfg',JSON.stringify(window._cfg));
+    updateSiteNameUI();
+    toast('সেটিংস লোকালে সেভ হয়েছে','warn');
+  }
+};
+
+// ── BANNERS ───────────────────────────────────────────────────
+function renderBanners(c){
+  c.innerHTML = `
+  <div class="card">
+    <div class="card-header"><div class="card-title"><i class="fas fa-images"></i> হিরো স্লাইডার ব্যানার</div><button class="card-btn" onclick="addBanner()">+ নতুন ব্যানার</button></div>
+    <div id="bannerList">
+      ${window._banners.map((b,i)=>`
+        <div style="background:var(--bg);border-radius:var(--rs);padding:14px;margin-bottom:10px;display:flex;align-items:center;gap:12px">
+          <div style="width:80px;height:50px;border-radius:10px;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.5rem;${b.bg?'background:'+b.bg:''}">${b.imageUrl?`<img src="${b.imageUrl}" style="width:100%;height:100%;object-fit:cover">`:b.emoji||'🖼️'}</div>
+          <div style="flex:1;min-width:0">
+            <div style="font-weight:800;font-size:.85rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${b.title?.replace('<br>',' ')||'ব্যানার '+(i+1)}</div>
+            <div style="font-size:.73rem;color:var(--txm)">${b.btnText||''}</div>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center;flex-shrink:0">
+            <div class="tog ${b.active!==false?'on':''}" onclick="toggleBanner(${i},this)"></div>
+            <button class="ta ta-ed" onclick="editBanner(${i})">সম্পাদন</button>
+            <button class="ta ta-dl" onclick="delBanner(${i})">মুছুন</button>
+          </div>
+        </div>`).join('')}
+    </div>
+    <button class="sub-btn" style="margin-top:12px" onclick="saveBanners()">💾 ব্যানার সেভ করুন</button>
+  </div>`;
+}
+
+window.toggleBanner = function(i,tog){ window._banners[i].active = tog.classList.toggle('on'); };
+window.delBanner = function(i){ window._banners.splice(i,1); renderBanners(document.getElementById('admContent')); };
+window.addBanner = function(){ window._banners.push({id:'b'+Date.now(),badge:'নতুন',title:'নতুন ব্যানার',subtitle:'সাবটাইটেল',btnText:'এখনই দেখুন',btnIcon:'fa-arrow-right',bg:'linear-gradient(135deg,#4DA6FF,#a78bfa)',emoji:'🎉',imageUrl:'',active:true}); editBanner(window._banners.length-1); };
+
+window.editBanner = function(i){
+  const b = window._banners[i];
+  document.getElementById('modalBody').innerHTML = `
+    <div class="mtt">ব্যানার সম্পাদনা</div>
+    <!-- Preview -->
+    <div class="banner-preview" id="banPrev">
+      <div class="bp-inner" style="background:${b.bg||'var(--grad)'}">
+        <div style="flex:1">
+          <div style="background:rgba(255,255,255,.22);color:#fff;font-size:.68rem;font-weight:800;padding:3px 10px;border-radius:20px;display:inline-block;margin-bottom:7px">${b.badge||'ব্যাজ'}</div>
+          <div style="color:#fff;font-size:1.1rem;font-weight:900;line-height:1.2;margin-bottom:5px">${b.title?.replace('<br>','<br>')||'শিরোনাম'}</div>
+          <div style="color:rgba(255,255,255,.8);font-size:.8rem;margin-bottom:10px">${b.subtitle||'সাবটাইটেল'}</div>
+          <div style="background:#fff;color:var(--p);padding:6px 16px;border-radius:50px;font-size:.78rem;font-weight:800;display:inline-block">${b.btnText||'বাটন টেক্সট'}</div>
+        </div>
+        <div style="font-size:3rem">${b.imageUrl?`<img src="${b.imageUrl}" style="height:80px;border-radius:10px">`:b.emoji||'🎉'}</div>
+      </div>
+    </div>
+    <div class="fg"><label class="fl">ব্যাজ টেক্সট</label><input class="fi" id="bn_badge" value="${b.badge||''}" oninput="prevBanner()"></div>
+    <div class="fg"><label class="fl">শিরোনাম (লাইন ব্রেকের জন্য &lt;br&gt; লিখুন)</label><input class="fi" id="bn_title" value="${(b.title||'').replace(/<br>/g,'<br>')}" oninput="prevBanner()"></div>
+    <div class="fg"><label class="fl">সাবটাইটেল</label><input class="fi" id="bn_sub" value="${b.subtitle||''}" oninput="prevBanner()"></div>
+    <div class="fg"><label class="fl">বাটন টেক্সট</label><input class="fi" id="bn_btn" value="${b.btnText||''}" oninput="prevBanner()"></div>
+    <div class="fg"><label class="fl">ছবি URL (যদি থাকে, ইমোজির বদলে)</label><input class="fi" id="bn_img" value="${b.imageUrl||''}" placeholder="https://..." oninput="prevBanner()"></div>
+    <div class="fg"><label class="fl">ইমোজি (ছবি না থাকলে)</label><input class="fi" id="bn_em" value="${b.emoji||'🎉'}" oninput="prevBanner()"></div>
+    <div class="fg"><label class="fl">ব্যাকগ্রাউন্ড গ্রেডিয়েন্ট (CSS)</label><input class="fi" id="bn_bg" value="${b.bg||''}" placeholder="linear-gradient(135deg,#4DA6FF,#a78bfa)" oninput="prevBanner()"></div>
+    <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+      ${['linear-gradient(135deg,#4DA6FF,#a78bfa)','linear-gradient(135deg,#34d399,#4DA6FF)','linear-gradient(135deg,#f472b6,#fb923c)','linear-gradient(135deg,#818cf8,#4DA6FF)','linear-gradient(135deg,#0f0c29,#302b63)','linear-gradient(135deg,#1a1a2e,#e91e63)'].map(g=>`<div onclick="document.getElementById('bn_bg').value='${g}';prevBanner()" style="width:36px;height:36px;border-radius:50%;background:${g};cursor:pointer;border:3px solid transparent;transition:.2s" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform=''"></div>`).join('')}
+    </div>
+    <button class="sub-btn" onclick="saveBannerEdit(${i})">💾 সেভ করুন</button>`;
+  openModal();
+};
+
+window.prevBanner = function(){
+  const prev = document.getElementById('banPrev');
+  if(!prev) return;
+  const bg = document.getElementById('bn_bg')?.value||'var(--grad)';
+  const title = document.getElementById('bn_title')?.value||'শিরোনাম';
+  const sub = document.getElementById('bn_sub')?.value||'';
+  const badge = document.getElementById('bn_badge')?.value||'';
+  const btn = document.getElementById('bn_btn')?.value||'বাটন';
+  const img = document.getElementById('bn_img')?.value||'';
+  const em = document.getElementById('bn_em')?.value||'🎉';
+  prev.innerHTML = `<div class="bp-inner" style="background:${bg}"><div style="flex:1"><div style="background:rgba(255,255,255,.22);color:#fff;font-size:.68rem;font-weight:800;padding:3px 10px;border-radius:20px;display:inline-block;margin-bottom:7px">${badge}</div><div style="color:#fff;font-size:1.1rem;font-weight:900;line-height:1.2;margin-bottom:5px">${title}</div><div style="color:rgba(255,255,255,.8);font-size:.8rem;margin-bottom:10px">${sub}</div><div style="background:#fff;color:var(--p);padding:6px 16px;border-radius:50px;font-size:.78rem;font-weight:800;display:inline-block">${btn}</div></div><div style="font-size:3rem">${img?`<img src="${img}" style="height:80px;border-radius:10px">`:em}</div></div>`;
+};
+
+window.saveBannerEdit = function(i){
+  window._banners[i] = {
+    ...window._banners[i],
+    badge:document.getElementById('bn_badge')?.value||'',
+    title:document.getElementById('bn_title')?.value||'',
+    subtitle:document.getElementById('bn_sub')?.value||'',
+    btnText:document.getElementById('bn_btn')?.value||'',
+    imageUrl:document.getElementById('bn_img')?.value||'',
+    emoji:document.getElementById('bn_em')?.value||'🎉',
+    bg:document.getElementById('bn_bg')?.value||'var(--grad)',
+  };
+  closeModal();
+  renderBanners(document.getElementById('admContent'));
+  toast('ব্যানার আপডেট হয়েছে','ok');
+};
+
+window.saveBanners = async function(){
+  try{
+    await setDoc(doc(db,'settings','banners'),{list:window._banners,updAt:serverTimestamp()});
+    toast('ব্যানার সেভ হয়েছে! ✓','ok');
+  }catch(e){
+    localStorage.setItem('bd_banners',JSON.stringify(window._banners));
+    toast('ব্যানার লোকালে সেভ হয়েছে','warn');
+  }
+};
+
+// ── CATEGORIES ────────────────────────────────────────────────
+function renderCategories(c){
+  c.innerHTML = `
+  <div class="card">
+    <div class="card-header"><div class="card-title"><i class="fas fa-tags"></i> ক্যাটাগরি তালিকা</div><button class="card-btn" onclick="addCategory()">+ নতুন ক্যাটাগরি</button></div>
+    <div class="cat-list" id="catList">
+      ${window._categories.map((cat,i)=>`
+        <div class="cat-item" id="cit-${i}">
+          <i class="fas fa-grip-vertical cat-handle"></i>
+          <div class="cat-info">
+            <div class="cat-em-box" style="background:${cat.bg||'var(--bg)'}">${cat.emoji||'📦'}</div>
+            <div><div class="cat-nm">${cat.name}</div><div class="cat-cnt">${window._products.filter(p=>p.cat===cat.name).length} পণ্য</div></div>
+          </div>
+          <div class="tog ${cat.active!==false?'on':''}" onclick="toggleCat(${i},this)"></div>
+          <button class="ta ta-ed" onclick="editCat(${i})">সম্পাদন</button>
+          <button class="ta ta-dl" onclick="delCat(${i})">মুছুন</button>
+        </div>`).join('')}
+    </div>
+    <button class="sub-btn" style="margin-top:14px" onclick="saveCategories()">💾 ক্যাটাগরি সেভ করুন</button>
+  </div>`;
+}
+
+window.toggleCat = function(i,tog){ window._categories[i].active = tog.classList.toggle('on'); };
+window.delCat = function(i){ if(!confirm('এই ক্যাটাগরি মুছবেন?')) return; window._categories.splice(i,1); renderCategories(document.getElementById('admContent')); };
+window.addCategory = function(){
+  window._categories.push({id:'c'+Date.now(),name:'নতুন ক্যাটাগরি',emoji:'📦',bg:'linear-gradient(135deg,#4DA6FF,#70C1FF)',active:true});
+  editCat(window._categories.length-1);
+};
+window.editCat = function(i){
+  const cat = window._categories[i];
+  document.getElementById('modalBody').innerHTML = `
+    <div class="mtt">ক্যাটাগরি সম্পাদনা</div>
+    <div class="fg"><label class="fl">ক্যাটাগরির নাম *</label><input class="fi" id="ct_nm" value="${cat.name||''}" placeholder="নাম"></div>
+    <div class="fg"><label class="fl">ইমোজি</label><input class="fi" id="ct_em" value="${cat.emoji||'📦'}"></div>
+    <div class="fg"><label class="fl">ব্যাকগ্রাউন্ড গ্রেডিয়েন্ট</label><input class="fi" id="ct_bg" value="${cat.bg||''}" placeholder="linear-gradient(...)"></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+      ${['linear-gradient(135deg,#FFB3C1,#FF6B9D)','linear-gradient(135deg,#B3E5FC,#4DA6FF)','linear-gradient(135deg,#C8E6C9,#4CAF50)','linear-gradient(135deg,#FFE0B2,#FF9800)','linear-gradient(135deg,#E1BEE7,#9C27B0)','linear-gradient(135deg,#B2DFDB,#009688)'].map(g=>`<div onclick="document.getElementById('ct_bg').value='${g}'" style="width:36px;height:36px;border-radius:50%;background:${g};cursor:pointer;border:3px solid transparent" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform=''"></div>`).join('')}
+    </div>
+    <button class="sub-btn" onclick="saveCatEdit(${i})">💾 সেভ করুন</button>`;
+  openModal();
+};
+window.saveCatEdit = function(i){
+  window._categories[i].name = document.getElementById('ct_nm')?.value.trim()||window._categories[i].name;
+  window._categories[i].emoji = document.getElementById('ct_em')?.value||'📦';
+  window._categories[i].bg = document.getElementById('ct_bg')?.value||'var(--bg)';
+  closeModal();
+  renderCategories(document.getElementById('admContent'));
+  toast('ক্যাটাগরি আপডেট হয়েছে','ok');
+};
+window.saveCategories = async function(){
+  try{
+    await setDoc(doc(db,'settings','categories'),{list:window._categories,updAt:serverTimestamp()});
+    toast('ক্যাটাগরি সেভ হয়েছে! ✓','ok');
+  }catch(e){
+    localStorage.setItem('bd_cats',JSON.stringify(window._categories));
+    toast('ক্যাটাগরি লোকালে সেভ হয়েছে','warn');
+  }
+};
+
+// ── FLASH SALE ────────────────────────────────────────────────
+function renderFlashSale(c){
+  const flashProds = window._products.filter(p=>p.flash);
+  c.innerHTML = `
+  <div class="card">
+    <div class="card-header"><div class="card-title"><i class="fas fa-bolt"></i> ফ্ল্যাশ সেল সেটিংস</div></div>
+    <div class="fg"><label class="fl">ফ্ল্যাশ সেল শেষ সময়</label><input type="datetime-local" class="fi" id="fs_end" value="${window._cfg.flashSaleEnd||''}"></div>
+    <div class="srow"><div class="slbl"><h4>ফ্ল্যাশ সেল সক্রিয়</h4><p>হোমপেজে ফ্ল্যাশ সেল টাইমার দেখাবে</p></div><div class="tog ${window._cfg.flashActive?'on':''}" id="tog_flash" onclick="this.classList.toggle('on')"></div></div>
+    <button class="sub-btn" onclick="saveFlashSale()" style="margin-top:14px">💾 সেভ করুন</button>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="card-title"><i class="fas fa-fire"></i> ফ্ল্যাশ সেল পণ্য (${flashProds.length})</div><div style="font-size:.8rem;color:var(--txm)">পণ্য এডিট করে ⚡ ফ্ল্যাশ সেল চেক করুন</div></div>
+    <div class="tbl-wrap"><table class="atb"><thead><tr><th>পণ্য</th><th>মূল্য</th><th>ছাড়</th><th>অ্যাকশন</th></tr></thead><tbody>
+      ${flashProds.map(p=>`<tr><td><div style="display:flex;align-items:center;gap:8px"><span style="font-size:1.3rem">${p.emoji||'📦'}</span><strong style="font-size:.82rem">${p.name}</strong></div></td><td><span style="font-weight:800;color:var(--p)">৳${(p.dp||0).toLocaleString()}</span></td><td><span style="color:var(--red);font-weight:800">-${Math.round((1-p.dp/p.price)*100)}%</span></td><td><button class="ta ta-ed" onclick="admEditProd('${p.id}')">সম্পাদন</button></td></tr>`).join('')||'<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--txm)">কোনো ফ্ল্যাশ সেল পণ্য নেই</td></tr>'}
+    </tbody></table></div>
+  </div>`;
+}
+window.saveFlashSale = async function(){
+  window._cfg.flashSaleEnd = document.getElementById('fs_end')?.value||null;
+  window._cfg.flashActive = document.getElementById('tog_flash')?.classList.contains('on');
+  try{ await setDoc(doc(db,'settings','main'),{...window._cfg},{}); toast('ফ্ল্যাশ সেল সেভ হয়েছে! ✓','ok'); }
+  catch(e){ toast('সেভ ব্যর্থ','err'); }
+};
+
+// ── NOTIFICATIONS ─────────────────────────────────────────────
+function renderNotifications(c){
+  c.innerHTML = `
+  <div class="card">
+    <div class="card-header"><div class="card-title"><i class="fas fa-paper-plane"></i> নোটিফিকেশন পাঠান</div></div>
+    <div class="notif-types" id="notifTypeWrap">
+      ${[{t:'offer',l:'🎁 অফার'},{t:'news',l:'📢 সংবাদ'},{t:'delivery',l:'🚚 ডেলিভারি'},{t:'alert',l:'⚠️ সতর্কতা'}].map(n=>`<button class="nt-btn ${n.t==='offer'?'on':''}" onclick="selNotifType('${n.t}',this)">${n.l}</button>`).join('')}
+    </div>
+    <div class="fg"><label class="fl">শিরোনাম *</label><input type="text" class="fi" id="nf_title" placeholder="নোটিফিকেশনের শিরোনাম" value="বিশেষ অফার!"></div>
+    <div class="fg"><label class="fl">বার্তা *</label><textarea class="fi" id="nf_msg" rows="3" placeholder="নোটিফিকেশনের বিস্তারিত বার্তা...">আজকে বিশেষ ছাড়ে পণ্য কিনুন!</textarea></div>
+    <div class="fg"><label class="fl">আইকন (Font Awesome class)</label><input type="text" class="fi" id="nf_icon" value="fa-gift" placeholder="fa-gift, fa-bell, fa-truck..."></div>
+    <button class="sub-btn" onclick="sendNotification()">📤 নোটিফিকেশন পাঠান</button>
+  </div>
+  <!-- Sent Notifications History -->
+  <div class="card">
+    <div class="card-header"><div class="card-title"><i class="fas fa-history"></i> পাঠানো নোটিফিকেশন ইতিহাস</div></div>
+    <div id="notifHistory">
+      ${(JSON.parse(localStorage.getItem('bd_notifs')||'[]')).slice(0,10).map(n=>`
+        <div style="display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid #f5f8fb">
+          <div style="width:36px;height:36px;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0"><i class="fas ${n.icon||'fa-bell'}" style="color:var(--p)"></i></div>
+          <div style="flex:1"><div style="font-size:.83rem;font-weight:800">${n.title}</div><div style="font-size:.78rem;color:var(--txm)">${n.msg}</div><div style="font-size:.7rem;color:var(--txm);margin-top:3px">${n.time||'আগে'}</div></div>
+        </div>`).join('')||'<div style="text-align:center;padding:20px;color:var(--txm)">কোনো ইতিহাস নেই</div>'}
+    </div>
+  </div>`;
+}
+
+window.selNotifType = function(t,btn){ document.querySelectorAll('.nt-btn').forEach(b=>b.classList.remove('on')); btn.classList.add('on'); };
+window.sendNotification = async function(){
+  const title = document.getElementById('nf_title')?.value.trim();
+  const msg = document.getElementById('nf_msg')?.value.trim();
+  const icon = document.getElementById('nf_icon')?.value.trim()||'fa-bell';
+  if(!title||!msg){ toast('শিরোনাম ও বার্তা দিন','err'); return; }
+  const notif = {id:'n'+Date.now(),title,msg,icon,color:'var(--p)',time:'এইমাত্র',read:false,fromAdmin:true};
+  const notifs = JSON.parse(localStorage.getItem('bd_notifs')||'[]');
+  notifs.unshift(notif);
+  localStorage.setItem('bd_notifs',JSON.stringify(notifs));
+  try{
+    await addDoc(collection(db,'notifications'),{...notif,createdAt:serverTimestamp()});
+  }catch(e){}
+  toast('নোটিফিকেশন পাঠানো হয়েছে! 📤','ok');
+  renderNotifications(document.getElementById('admContent'));
+};
+
+// ── POPUP OFFER ───────────────────────────────────────────────
+function renderPopupOffer(c){
+  const cfg = window._cfg;
+  c.innerHTML = `
+  <div class="card">
+    <div class="card-header"><div class="card-title"><i class="fas fa-gift"></i> পপআপ অফার সেটিংস</div></div>
+    <!-- Preview -->
+    <div class="popup-preview" style="background:${cfg.popupBg||'linear-gradient(135deg,#0f0c29,#302b63)'}">
+      <div style="font-size:2rem;margin-bottom:8px">🎉</div>
+      <h3>${cfg.popupTitle||'বিশেষ অফার!'}</h3>
+      <p>${cfg.popupMsg||'প্রথম অর্ডারে ছাড় পান'}</p>
+      ${cfg.popupCoupon?`<div style="background:rgba(255,255,255,.15);border:1px dashed rgba(255,255,255,.3);padding:6px 16px;border-radius:8px;color:#fff;font-weight:900;margin-top:10px;display:inline-block">${cfg.popupCoupon}</div>`:''}
+    </div>
+    <div class="srow"><div class="slbl"><h4>পপআপ সক্রিয়</h4><p>ইউজার প্রথমবার ভিজিটে দেখাবে</p></div><div class="tog ${cfg.popupEnabled!==false?'on':''}" id="tog_popup" onclick="this.classList.toggle('on')"></div></div>
+    <div class="fg"><label class="fl">পপআপ শিরোনাম</label><input class="fi" id="pp_title" value="${cfg.popupTitle||'বিশেষ অফার!'}" placeholder="শিরোনাম"></div>
+    <div class="fg"><label class="fl">পপআপ বার্তা</label><textarea class="fi" id="pp_msg" rows="2" placeholder="বার্তা...">${cfg.popupMsg||'প্রথম অর্ডারে ছাড় পান'}</textarea></div>
+    <div class="fg"><label class="fl">কুপন কোড (ঐচ্ছিক)</label><input class="fi" id="pp_coupon" value="${cfg.popupCoupon||''}" placeholder="FIRST100"></div>
+    <div class="fg"><label class="fl">ব্যাকগ্রাউন্ড (CSS)</label><input class="fi" id="pp_bg" value="${cfg.popupBg||'linear-gradient(135deg,#0f0c29,#302b63)'}" placeholder="linear-gradient(...)"></div>
+    <div class="fg"><label class="fl">প্রতি কতদিনে দেখাবে (দিন)</label><input type="number" class="fi" id="pp_freq" value="${cfg.popupFrequency||7}" min="1"></div>
+    <button class="sub-btn" onclick="savePopupOffer()">💾 পপআপ সেভ করুন</button>
+  </div>`;
+}
+window.savePopupOffer = async function(){
+  window._cfg.popupEnabled = document.getElementById('tog_popup')?.classList.contains('on');
+  window._cfg.popupTitle = document.getElementById('pp_title')?.value||'';
+  window._cfg.popupMsg = document.getElementById('pp_msg')?.value||'';
+  window._cfg.popupCoupon = document.getElementById('pp_coupon')?.value||'';
+  window._cfg.popupBg = document.getElementById('pp_bg')?.value||'';
+  window._cfg.popupFrequency = parseInt(document.getElementById('pp_freq')?.value||7);
+  try{ await setDoc(doc(db,'settings','main'),{...window._cfg},{merge:true}); toast('পপআপ সেভ হয়েছে! ✓','ok'); }
+  catch(e){ localStorage.setItem('bd_cfg',JSON.stringify(window._cfg)); toast('পপআপ লোকালে সেভ হয়েছে','warn'); }
+};
+
+// ── PAYMENT ───────────────────────────────────────────────────
+function renderPayment(c){
+  const cfg = window._cfg;
+  c.innerHTML = `
+  <div class="card">
+    <div class="card-header"><div class="card-title"><i class="fas fa-credit-card"></i> পেমেন্ট পদ্ধতি</div></div>
+    <div class="srow"><div class="slbl"><h4>bKash সক্রিয়</h4></div><div class="tog ${cfg.bkashActive!==false?'on':''}" id="tog_bkash" onclick="this.classList.toggle('on')"></div></div>
+    <div class="fg"><label class="fl">bKash নম্বর</label><input type="tel" class="fi" id="cfg_bk" value="${cfg.bkash||''}" placeholder="01XXXXXXXXX"></div>
+    <div class="fg"><label class="fl">bKash নির্দেশনা</label><input class="fi" id="cfg_bk_instr" value="${cfg.bkashInstr||'Send Money করুন তারপর Transaction ID জানান।'}" placeholder="নির্দেশনা"></div>
+    <hr style="margin:14px 0;border:none;border-top:1px solid #f0f5f9">
+    <div class="srow"><div class="slbl"><h4>Nagad সক্রিয়</h4></div><div class="tog ${cfg.nagadActive!==false?'on':''}" id="tog_nagad" onclick="this.classList.toggle('on')"></div></div>
+    <div class="fg"><label class="fl">Nagad নম্বর</label><input type="tel" class="fi" id="cfg_ng" value="${cfg.nagad||''}" placeholder="01XXXXXXXXX"></div>
+    <div class="fg"><label class="fl">Nagad নির্দেশনা</label><input class="fi" id="cfg_ng_instr" value="${cfg.nagadInstr||'Send Money করুন তারপর Transaction ID জানান।'}" placeholder="নির্দেশনা"></div>
+    <hr style="margin:14px 0;border:none;border-top:1px solid #f0f5f9">
+    <div class="srow"><div class="slbl"><h4>ক্যাশ অন ডেলিভারি</h4></div><div class="tog ${cfg.codActive!==false?'on':''}" id="tog_cod" onclick="this.classList.toggle('on')"></div></div>
+    <button class="sub-btn" style="margin-top:14px" onclick="savePayment()">💾 পেমেন্ট সেভ করুন</button>
+  </div>`;
+}
+window.savePayment = async function(){
+  window._cfg.bkash = document.getElementById('cfg_bk')?.value||'';
+  window._cfg.bkashInstr = document.getElementById('cfg_bk_instr')?.value||'';
+  window._cfg.nagad = document.getElementById('cfg_ng')?.value||'';
+  window._cfg.nagadInstr = document.getElementById('cfg_ng_instr')?.value||'';
+  window._cfg.bkashActive = document.getElementById('tog_bkash')?.classList.contains('on');
+  window._cfg.nagadActive = document.getElementById('tog_nagad')?.classList.contains('on');
+  window._cfg.codActive = document.getElementById('tog_cod')?.classList.contains('on');
+  try{ await setDoc(doc(db,'settings','main'),{...window._cfg},{merge:true}); toast('পেমেন্ট সেটিংস সেভ হয়েছে! ✓','ok'); }
+  catch(e){ localStorage.setItem('bd_cfg',JSON.stringify(window._cfg)); toast('পেমেন্ট লোকালে সেভ হয়েছে','warn'); }
+};
+
+// ── DELIVERY ──────────────────────────────────────────────────
+function renderDelivery(c){
+  const cfg = window._cfg;
+  c.innerHTML = `
+  <div class="card">
+    <div class="card-header"><div class="card-title"><i class="fas fa-truck"></i> ডেলিভারি চার্জ</div></div>
+    <div class="fg"><label class="fl">ঢাকার মধ্যে (৳)</label><input type="number" class="fi" id="dc_dhaka" value="${cfg.dhakaCharge||60}" min="0"></div>
+    <div class="fg"><label class="fl">ঢাকার কাছাকাছি (গাজীপুর/নারায়ণগঞ্জ) (৳)</label><input type="number" class="fi" id="dc_near" value="${cfg.nearCharge||80}" min="0"></div>
+    <div class="fg"><label class="fl">ঢাকার বাইরে (৳)</label><input type="number" class="fi" id="dc_out" value="${cfg.outsideCharge||120}" min="0"></div>
+    <div class="fg"><label class="fl">বিশেষ/দ্বীপ এলাকা (৳)</label><input type="number" class="fi" id="dc_special" value="${cfg.specialCharge||200}" min="0"></div>
+    <div class="srow"><div class="slbl"><h4>ফ্রি ডেলিভারি</h4><p>নির্দিষ্ট পরিমাণের উপরে অর্ডারে ঢাকায় ফ্রি</p></div><div class="tog ${cfg.freeDeliveryEnabled?'on':''}" id="tog_free" onclick="this.classList.toggle('on')"></div></div>
+    <div class="fg"><label class="fl">ফ্রি ডেলিভারির ন্যূনতম অর্ডার (৳)</label><input type="number" class="fi" id="dc_min" value="${cfg.freeDeliveryMin||500}" min="0"></div>
+    <button class="sub-btn" onclick="saveDelivery()">💾 চার্জ সেভ করুন</button>
+  </div>`;
+}
+window.saveDelivery = async function(){
+  window._cfg.dhakaCharge = parseInt(document.getElementById('dc_dhaka')?.value||60);
+  window._cfg.nearCharge = parseInt(document.getElementById('dc_near')?.value||80);
+  window._cfg.outsideCharge = parseInt(document.getElementById('dc_out')?.value||120);
+  window._cfg.specialCharge = parseInt(document.getElementById('dc_special')?.value||200);
+  window._cfg.freeDeliveryEnabled = document.getElementById('tog_free')?.classList.contains('on');
+  window._cfg.freeDeliveryMin = parseInt(document.getElementById('dc_min')?.value||500);
+  try{ await setDoc(doc(db,'settings','main'),{...window._cfg},{merge:true}); toast('ডেলিভারি চার্জ সেভ হয়েছে! ✓','ok'); }
+  catch(e){ localStorage.setItem('bd_cfg',JSON.stringify(window._cfg)); toast('ডেলিভারি লোকালে সেভ হয়েছে','warn'); }
+};
+
+// ── COUPONS ───────────────────────────────────────────────────
+function renderCoupons(c){
+  c.innerHTML = `
+  <div class="card">
+    <div class="card-header"><div class="card-title"><i class="fas fa-ticket-alt"></i> কুপন তালিকা</div><button class="card-btn" onclick="admAddCoupon()">+ নতুন কুপন</button></div>
+    <div class="tbl-wrap"><table class="atb"><thead><tr><th>কোড</th><th>ছাড়</th><th>ন্যূনতম অর্ডার</th><th>ব্যবহার</th><th>স্ট্যাটাস</th><th>অ্যাকশন</th></tr></thead><tbody>
+      ${window._coupons.map((cp,i)=>`
+        <tr>
+          <td style="font-weight:800;font-family:'Poppins',sans-serif;letter-spacing:1px">${cp.code}</td>
+          <td style="font-weight:800;color:var(--green)">৳${cp.amount}</td>
+          <td>${cp.minOrder?'৳'+cp.minOrder:'যেকোনো'}</td>
+          <td>${cp.used||0} / ${cp.maxUse||'∞'}</td>
+          <td><span class="sbadge ${cp.active?'s-shipped':'s-cancelled'}">${cp.active?'সক্রিয়':'নিষ্ক্রিয়'}</span></td>
+          <td style="white-space:nowrap">
+            <button class="ta ta-ed" onclick="editCoupon(${i})">সম্পাদন</button>
+            <button class="ta ta-dl" onclick="delCoupon(${i})">মুছুন</button>
+          </td>
+        </tr>`).join('')||'<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--txm)">কোনো কুপন নেই</td></tr>'}
+    </tbody></table></div>
+  </div>`;
+}
+window.admAddCoupon = function(){ showCouponModal(null); };
+window.editCoupon = function(i){ showCouponModal(window._coupons[i],i); };
+function showCouponModal(cp,idx){
+  document.getElementById('modalBody').innerHTML = `
+    <div class="mtt">${cp?'কুপন সম্পাদনা':'নতুন কুপন তৈরি'}</div>
+    <div class="fg"><label class="fl">কুপন কোড *</label><input class="fi" id="cp_code" value="${cp?.code||''}" placeholder="SAVE100" style="text-transform:uppercase;font-weight:800;letter-spacing:2px"></div>
+    <div class="fg"><label class="fl">ছাড়ের পরিমাণ (৳) *</label><input type="number" class="fi" id="cp_amt" value="${cp?.amount||''}" placeholder="100"></div>
+    <div class="frow">
+      <div class="fg"><label class="fl">ন্যূনতম অর্ডার (৳)</label><input type="number" class="fi" id="cp_min" value="${cp?.minOrder||0}" placeholder="0"></div>
+      <div class="fg"><label class="fl">সর্বোচ্চ ব্যবহার</label><input type="number" class="fi" id="cp_max" value="${cp?.maxUse||100}" placeholder="100"></div>
+    </div>
+    <div class="srow"><div class="slbl"><h4>সক্রিয়</h4></div><div class="tog ${cp?.active!==false?'on':''}" id="tog_cp" onclick="this.classList.toggle('on')"></div></div>
+    <button class="sub-btn" style="margin-top:14px" onclick="saveCoupon(${idx!==undefined?idx:-1})">💾 কুপন সেভ করুন</button>`;
+  openModal();
+}
+window.saveCoupon = async function(idx){
+  const code = document.getElementById('cp_code')?.value.trim().toUpperCase();
+  const amount = parseInt(document.getElementById('cp_amt')?.value||0);
+  if(!code||!amount){ toast('কোড ও পরিমাণ দিন','err'); return; }
+  const cpData = {
+    id:'cp'+Date.now(), code, amount, type:'fixed',
+    minOrder:parseInt(document.getElementById('cp_min')?.value||0),
+    maxUse:parseInt(document.getElementById('cp_max')?.value||100),
+    used:0, active:document.getElementById('tog_cp')?.classList.contains('on'),
+  };
+  if(idx>=0) window._coupons[idx] = {...window._coupons[idx],...cpData};
+  else window._coupons.push(cpData);
+  try{ await setDoc(doc(db,'settings','coupons'),{list:window._coupons,updAt:serverTimestamp()}); }
+  catch(e){ localStorage.setItem('bd_coupons',JSON.stringify(window._coupons)); }
+  closeModal();
+  toast('কুপন সেভ হয়েছে! ✓','ok');
+  renderCoupons(document.getElementById('admContent'));
+};
+window.delCoupon = async function(i){
+  if(!confirm('এই কুপন মুছবেন?')) return;
+  window._coupons.splice(i,1);
+  try{ await setDoc(doc(db,'settings','coupons'),{list:window._coupons}); }catch(e){}
+  toast('কুপন মুছা হয়েছে','warn');
+  renderCoupons(document.getElementById('admContent'));
+};
+
+// ── ORDER TRACKING ────────────────────────────────────────────
+function renderTracking(c){
+  c.innerHTML = `
+  <div class="card">
+    <div class="card-header"><div class="card-title"><i class="fas fa-search"></i> অর্ডার খুঁজুন ও ট্র্যাক আপডেট করুন</div></div>
+    <div style="display:flex;gap:9px;margin-bottom:16px">
+      <input type="text" class="fi" id="trkSearch" placeholder="অর্ডার নম্বর বা ফোন নম্বর" style="flex:1">
+      <button class="sub-btn" style="width:auto;padding:10px 20px" onclick="trkSearch()">খুঁজুন</button>
+    </div>
+    <div id="trkResult"></div>
+  </div>
+  <div class="card">
+    <div class="card-header"><div class="card-title"><i class="fas fa-list"></i> সাম্প্রতিক অর্ডার ট্র্যাকিং</div></div>
+    <div class="tbl-wrap"><table class="atb"><thead><tr><th>অর্ডার ID</th><th>গ্রাহক</th><th>বর্তমান স্ট্যাটাস</th><th>পরিবর্তন করুন</th></tr></thead><tbody>
+      ${window._orders.slice(0,10).map(o=>`<tr>
+        <td style="color:var(--p);font-weight:800">#${(o.id||o.fid||'').slice(-8)}</td>
+        <td>${o.customer?.name||'-'}</td>
+        <td><span class="sbadge s-${o.status||'pending'}">${statusName(o.status)}</span></td>
+        <td><select onchange="updateOrderStatus('${o.fid||o.id}',this.value)" style="border:1.5px solid #e8eef4;border-radius:8px;padding:5px 8px;font-size:.75rem;font-family:inherit;outline:none">
+          ${['pending','confirmed','processing','shipped','delivered','cancelled'].map(s=>`<option value="${s}" ${(o.status||'pending')===s?'selected':''}>${statusName(s)}</option>`).join('')}
+        </select></td>
+      </tr>`).join('')}
+    </tbody></table></div>
+  </div>`;
+}
+window.trkSearch = function(){
+  const q = document.getElementById('trkSearch')?.value.trim();
+  if(!q){ toast('অর্ডার নম্বর দিন','err'); return; }
+  const found = window._orders.filter(o=>(o.id||'').includes(q)||(o.customer?.phone||'').includes(q)||(o.fid||'').includes(q));
+  const el = document.getElementById('trkResult');
+  if(!found.length){ el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--txm)">অর্ডার পাওয়া যায়নি</div>'; return; }
+  el.innerHTML = found.map(o=>`<div style="background:var(--bg);border-radius:var(--rs);padding:14px;margin-bottom:8px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><strong style="color:var(--p)">#${o.id||o.fid}</strong><span class="sbadge s-${o.status||'pending'}">${statusName(o.status)}</span></div><div style="font-size:.82rem;margin-bottom:8px">${o.customer?.name||'-'} | ${o.customer?.phone||''}</div><select onchange="updateOrderStatus('${o.fid||o.id}',this.value)" style="width:100%;border:1.5px solid var(--p);border-radius:8px;padding:8px;font-size:.82rem;font-family:inherit;outline:none;background:#fff">${['pending','confirmed','processing','shipped','delivered','cancelled'].map(s=>`<option value="${s}" ${(o.status||'pending')===s?'selected':''}>${statusName(s)}</option>`).join('')}</select></div>`).join('');
+};
+
+// ── REVIEWS ───────────────────────────────────────────────────
+function renderReviews(c){
+  c.innerHTML = `
+  <div class="card">
+    <div class="card-header"><div class="card-title"><i class="fas fa-star"></i> রিভিউ ব্যবস্থাপনা</div></div>
+    <div id="reviewList" style="text-align:center;padding:30px">
+      <div class="spin" style="margin:0 auto 14px"></div>
+      <p style="color:var(--txm)">রিভিউ লোড হচ্ছে...</p>
+    </div>
+  </div>`;
+  loadReviews(c);
+}
+async function loadReviews(c){
+  try{
+    const snap = await getDocs(query(collection(db,'reviews'),orderBy('date','desc')));
+    const rvs = snap.docs.map(d=>({id:d.id,...d.data()}));
+    const el = document.getElementById('reviewList');
+    if(!el) return;
+    if(!rvs.length){ el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--txm)">কোনো রিভিউ নেই</div>'; return; }
+    el.innerHTML = `<table class="atb"><thead><tr><th>ব্যবহারকারী</th><th>পণ্য</th><th>রেটিং</th><th>মন্তব্য</th><th>অ্যাকশন</th></tr></thead><tbody>
+      ${rvs.map(r=>`<tr><td style="font-weight:700">${r.name||'-'}</td><td>${(window._products.find(p=>p.id===r.pid)?.name)||r.pid}</td><td>${'★'.repeat(r.rat||5)}</td><td style="font-size:.8rem;max-width:200px">${r.text||''}</td><td><button class="ta ta-dl" onclick="delReview('${r.id}')">মুছুন</button></td></tr>`).join('')}
+    </tbody></table>`;
+  }catch(e){ document.getElementById('reviewList').innerHTML = '<div style="text-align:center;padding:20px;color:var(--txm)">Firebase থেকে রিভিউ লোড ব্যর্থ</div>'; }
+}
+window.delReview = async function(id){
+  if(!confirm('এই রিভিউ মুছবেন?')) return;
+  try{ await deleteDoc(doc(db,'reviews',id)); toast('রিভিউ মুছা হয়েছে','warn'); renderReviews(document.getElementById('admContent')); }
+  catch(e){ toast('মুছা ব্যর্থ','err'); }
+};
+
+// ── SOCIAL MEDIA ──────────────────────────────────────────────
+function renderSocial(c){
+  const cfg = window._cfg;
+  c.innerHTML = `
+  <div class="card">
+    <div class="card-header"><div class="card-title"><i class="fas fa-share-alt"></i> সোশ্যাল মিডিয়া লিংক</div></div>
+    <div class="fg"><label class="fl"><i class="fab fa-facebook-f" style="color:#1877f2"></i> Facebook URL</label><input class="fi" id="sc_fb" value="${cfg.facebookUrl||''}" placeholder="https://facebook.com/..."></div>
+    <div class="fg"><label class="fl"><i class="fab fa-instagram" style="color:#e1306c"></i> Instagram URL</label><input class="fi" id="sc_ig" value="${cfg.instagramUrl||''}" placeholder="https://instagram.com/..."></div>
+    <div class="fg"><label class="fl"><i class="fab fa-youtube" style="color:#ff0000"></i> YouTube URL</label><input class="fi" id="sc_yt" value="${cfg.youtubeUrl||''}" placeholder="https://youtube.com/..."></div>
+    <div class="fg"><label class="fl"><i class="fab fa-tiktok"></i> TikTok URL</label><input class="fi" id="sc_tt" value="${cfg.tiktokUrl||''}" placeholder="https://tiktok.com/@..."></div>
+    <div class="fg"><label class="fl"><i class="fab fa-whatsapp" style="color:#25D366"></i> WhatsApp নম্বর</label><input class="fi" id="sc_wa" value="${cfg.whatsapp||''}" placeholder="8801XXXXXXXXX"></div>
+    <button class="sub-btn" onclick="saveSocial()">💾 সোশ্যাল মিডিয়া সেভ করুন</button>
+  </div>`;
+}
+window.saveSocial = async function(){
+  window._cfg.facebookUrl = document.getElementById('sc_fb')?.value||'';
+  window._cfg.instagramUrl = document.getElementById('sc_ig')?.value||'';
+  window._cfg.youtubeUrl = document.getElementById('sc_yt')?.value||'';
+  window._cfg.tiktokUrl = document.getElementById('sc_tt')?.value||'';
+  window._cfg.whatsapp = document.getElementById('sc_wa')?.value||'';
+  try{ await setDoc(doc(db,'settings','main'),{...window._cfg},{merge:true}); toast('সোশ্যাল মিডিয়া সেভ হয়েছে! ✓','ok'); }
+  catch(e){ localStorage.setItem('bd_cfg',JSON.stringify(window._cfg)); toast('লোকালে সেভ হয়েছে','warn'); }
+};
+
+// ── REAL-TIME ORDER LISTENER ──────────────────────────────────
+function startOrderListener(){
+  try{
+    onSnapshot(collection(db,'orders'), snap=>{
+      snap.docChanges().forEach(change=>{
+        if(change.type==='added'){
+          const o = {fid:change.doc.id,...change.doc.data()};
+          const exists = window._orders.find(x=>x.fid===o.fid||x.id===o.id);
+          if(!exists){
+            window._orders.unshift(o);
+            updatePendingBadge();
+            // Show toast for new order
+            toast(`🛍️ নতুন অর্ডার! #${(o.id||'').slice(-8)} - ৳${(o.total||0).toLocaleString()}`, 'ok');
+            // Play notification sound
+            try{ const ac=new AudioContext(); const osc=ac.createOscillator(); const gain=ac.createGain(); osc.connect(gain); gain.connect(ac.destination); osc.frequency.value=880; gain.gain.setValueAtTime(0.3,ac.currentTime); gain.gain.exponentialRampToValueAtTime(0.001,ac.currentTime+0.5); osc.start(ac.currentTime); osc.stop(ac.currentTime+0.5); }catch(e){}
+            // Re-render orders if on orders page
+            if(window._curSec==='orders') renderOrders(document.getElementById('admContent'));
+            if(window._curSec==='dashboard') renderDashboard(document.getElementById('admContent'));
+          }
+        }
+        if(change.type==='modified'){
+          const o = {fid:change.doc.id,...change.doc.data()};
+          const idx = window._orders.findIndex(x=>x.fid===o.fid);
+          if(idx>=0) window._orders[idx]={...window._orders[idx],...o};
+          updatePendingBadge();
+        }
+      });
+    });
+  }catch(e){}
+}
+
+// ── IMAGE UPLOAD HELPER ────────────────────────────────────────
+window.uploadProductImage = function(inputId, previewId){
+  const input = document.getElementById(inputId);
+  if(!input) return;
+  input.onchange = async (e)=>{
+    const file = e.target.files[0]; if(!file) return;
+    const preview = document.getElementById(previewId);
+    if(preview) preview.innerHTML = '<div class="spin" style="width:24px;height:24px;margin:auto"></div>';
+    try{
+      const r = stRef(storage, `products/${Date.now()}_${file.name}`);
+      await uploadBytes(r, file);
+      const url = await getDownloadURL(r);
+      const imgInput = document.getElementById('pf_img')||document.getElementById('ep_img');
+      if(imgInput) imgInput.value = url;
+      if(preview) preview.innerHTML = `<img src="${url}" style="width:60px;height:60px;object-fit:cover;border-radius:10px">`;
+      toast('ছবি আপলোড হয়েছে! ✓','ok');
+    }catch(e){ if(preview)preview.innerHTML=''; toast('ছবি আপলোড ব্যর্থ','err'); }
+  };
+  input.click();
+};
+
+// ── FULL ORDER DETAIL WITH LINKS ───────────────────────────────
+window.viewOrderFull = function(fid){
+  const o = window._orders.find(x=>x.fid===fid||x.id===fid);
+  if(!o){ toast('অর্ডার পাওয়া যায়নি','err'); return; }
+  const siteUrl = window.location.origin + '/index.html';
+  document.getElementById('modalBody').innerHTML = `
+    <div class="mtt" style="display:flex;justify-content:space-between;align-items:center">
+      <span>অর্ডার #${(o.id||o.fid||'').slice(-8)}</span>
+      <span class="sbadge s-${o.status||'pending'}">${statusName(o.status)}</span>
+    </div>
+    <!-- Customer Info -->
+    <div style="background:var(--bg);border-radius:var(--rs);padding:14px;margin-bottom:12px">
+      <div style="font-size:.75rem;font-weight:800;color:var(--txm);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">👤 গ্রাহকের তথ্য</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div><div style="font-size:.7rem;color:var(--txm)">নাম</div><div style="font-weight:800">${o.customer?.name||'-'}</div></div>
+        <div><div style="font-size:.7rem;color:var(--txm)">ফোন</div><div style="font-weight:800">${o.customer?.phone||'-'}</div></div>
+        <div style="grid-column:1/-1"><div style="font-size:.7rem;color:var(--txm)">ঠিকানা</div><div style="font-weight:700">${o.customer?.address||o.customer?.addr||'-'}, ${o.customer?.district||o.customer?.dist||''} ${o.customer?.area?'- '+o.customer.area:''}</div></div>
+      </div>
+    </div>
+    <!-- Payment Info -->
+    <div style="background:var(--bg);border-radius:var(--rs);padding:14px;margin-bottom:12px">
+      <div style="font-size:.75rem;font-weight:800;color:var(--txm);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">💳 পেমেন্ট তথ্য</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div><div style="font-size:.7rem;color:var(--txm)">পদ্ধতি</div><div style="font-weight:800">${o.pay||'-'}</div></div>
+        <div><div style="font-size:.7rem;color:var(--txm)">Transaction ID</div><div style="font-weight:800;color:var(--p)">${o.trxId||'COD'}</div></div>
+        <div><div style="font-size:.7rem;color:var(--txm)">মোট টাকা</div><div style="font-weight:900;color:var(--p);font-size:1rem">৳${(o.total||0).toLocaleString()}</div></div>
+        <div><div style="font-size:.7rem;color:var(--txm)">তারিখ</div><div style="font-weight:700">${o.createdAt?new Date(o.createdAt).toLocaleDateString('bn-BD'):'-'}</div></div>
+      </div>
+    </div>
+    <!-- Products with links -->
+    <div style="font-size:.85rem;font-weight:800;margin-bottom:10px">📦 পণ্যসমূহ ও লিংক</div>
+    ${(o.items||[]).map(it=>`
+      <div style="background:var(--bg);border-radius:var(--rs);padding:12px;margin-bottom:8px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+          <div style="width:40px;height:40px;border-radius:10px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;overflow:hidden">${it.image?`<img src="${it.image}" style="width:100%;height:100%;object-fit:cover">`:it.emoji||'📦'}</div>
+          <div style="flex:1">
+            <div style="font-size:.83rem;font-weight:800">${it.name}</div>
+            <div style="font-size:.72rem;color:var(--txm)">${it.sz?'সাইজ: '+it.sz+' | ':''}${it.col?'রঙ: '+it.col+' | ':''}×${it.qty}</div>
+          </div>
+          <div style="font-weight:900;color:var(--p)">৳${((it.price||0)*it.qty).toLocaleString()}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div style="font-size:.7rem;color:var(--txm);flex:1;word-break:break-all">${siteUrl}#prod-${it.id||''}</div>
+          <button onclick="navigator.clipboard?.writeText('${siteUrl}#prod-${it.id||''}').then(()=>toast('লিংক কপি হয়েছে','ok'))" style="background:var(--bg);border:1.5px solid var(--p);color:var(--p);border-radius:8px;padding:4px 10px;font-size:.72rem;cursor:pointer;font-family:inherit;flex-shrink:0"><i class="fas fa-copy"></i> কপি</button>
+        </div>
+      </div>`).join('')}
+    <!-- Summary -->
+    <div style="background:#fff;border:1.5px solid var(--bg);border-radius:var(--rs);padding:12px;margin-top:4px">
+      <div style="display:flex;justify-content:space-between;font-size:.82rem;padding:4px 0"><span>পণ্যের মোট</span><span style="font-weight:700">৳${(o.sub||o.subtotal||0).toLocaleString()}</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:.82rem;padding:4px 0"><span>ডেলিভারি</span><span style="font-weight:700">৳${o.del||60}</span></div>
+      ${(o.disc||o.discount)?`<div style="display:flex;justify-content:space-between;font-size:.82rem;padding:4px 0;color:var(--green)"><span>কুপন ছাড়</span><span>-৳${o.disc||o.discount}</span></div>`:''}
+      <div style="display:flex;justify-content:space-between;font-size:.95rem;font-weight:900;color:var(--p);padding:8px 0 0;border-top:1px solid var(--bg);margin-top:4px"><span>সর্বমোট</span><span>৳${(o.total||0).toLocaleString()}</span></div>
+    </div>
+    <!-- Status update + WhatsApp -->
+    <div style="display:flex;gap:8px;margin-top:14px">
+      <select onchange="updateOrderStatus('${o.fid||o.id}',this.value)" style="flex:1;border:2px solid var(--p);border-radius:var(--rs);padding:10px;font-size:.83rem;font-family:inherit;outline:none;background:#fff">
+        ${['pending','confirmed','processing','shipped','delivered','cancelled'].map(s=>`<option value="${s}" ${(o.status||'pending')===s?'selected':''}>${statusName(s)}</option>`).join('')}
+      </select>
+      <button onclick="window.open('https://wa.me/${(o.customer?.phone||'').replace(/^0/,'880')}?text='+encodeURIComponent('আপনার অর্ডার #${(o.id||'').slice(-8)} আপডেট হয়েছে। বর্তমান স্ট্যাটাস: ${statusName(o.status)}'),'_blank')" style="background:#25D366;color:#fff;border:none;border-radius:var(--rs);padding:10px 16px;cursor:pointer;font-size:1.1rem">
+        <i class="fab fa-whatsapp"></i>
+      </button>
+    </div>`;
+  openModal();
+};
+
+// ── USERS SECTION ─────────────────────────────────────────────
+function renderUsers(c){
+  c.innerHTML = `
+  <div class="card">
+    <div class="card-header"><div class="card-title"><i class="fas fa-users"></i> নিবন্ধিত ব্যবহারকারী</div></div>
+    <div id="userListEl" style="text-align:center;padding:30px">
+      <div class="spin" style="margin:0 auto 14px"></div>
+      <p style="color:var(--txm)">লোড হচ্ছে...</p>
+    </div>
+  </div>`;
+  loadUsers();
+}
+async function loadUsers(){
+  try{
+    const snap = await getDocs(collection(db,'users'));
+    const users = snap.docs.map(d=>({id:d.id,...d.data()}));
+    const el = document.getElementById('userListEl'); if(!el) return;
+    if(!users.length){ el.innerHTML='<div style="text-align:center;padding:20px;color:var(--txm)">কোনো ব্যবহারকারী নেই</div>'; return; }
+    el.innerHTML = `<table class="atb"><thead><tr><th>নাম</th><th>ইমেইল</th><th>ফোন</th><th>অর্ডার</th></tr></thead><tbody>
+      ${users.map(u=>`<tr>
+        <td style="font-weight:700">${u.name||'-'}</td>
+        <td style="font-size:.8rem">${u.email||'-'}</td>
+        <td>${u.phone||'-'}</td>
+        <td>${window._orders.filter(o=>o.uid===u.id).length}</td>
+      </tr>`).join('')}
+    </tbody></table>`;
+  }catch(e){ const el=document.getElementById('userListEl'); if(el)el.innerHTML='<div style="text-align:center;padding:20px;color:var(--txm)">Firebase থেকে লোড ব্যর্থ</div>'; }
+}
+
+// ── SETTINGS BACKUP / RESTORE ──────────────────────────────────
+window.exportSettings = function(){
+  const data = JSON.stringify({cfg:window._cfg,cats:window._categories,banners:window._banners,coupons:window._coupons},null,2);
+  const blob = new Blob([data],{type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download='shopbd-settings.json'; a.click();
+  toast('সেটিংস এক্সপোর্ট হয়েছে! ✓','ok');
+};
+window.importSettings = function(){
+  const input = document.createElement('input'); input.type='file'; input.accept='.json';
+  input.onchange = async e=>{
+    const file=e.target.files[0]; if(!file) return;
+    const text = await file.text();
+    try{
+      const data = JSON.parse(text);
+      if(data.cfg) window._cfg={...window._cfg,...data.cfg};
+      if(data.cats) window._categories=data.cats;
+      if(data.banners) window._banners=data.banners;
+      if(data.coupons) window._coupons=data.coupons;
+      await setDoc(doc(db,'settings','main'),{...window._cfg},{merge:true});
+      await setDoc(doc(db,'settings','categories'),{list:window._categories});
+      await setDoc(doc(db,'settings','banners'),{list:window._banners});
+      await setDoc(doc(db,'settings','coupons'),{list:window._coupons});
+      toast('সেটিংস ইম্পোর্ট হয়েছে! ✓','ok');
+      updateSiteNameUI();
+    }catch(err){ toast('ফাইল পড়তে ব্যর্থ','err'); }
+  };
+  input.click();
+};
+
+// Add Users to section router
+const _origShowSec = window.showSec;
+window.showSec = function(sec){
+  if(sec==='users'){ SEC_TITLES['users']='👥 ব্যবহারকারী'; window._curSec=sec; document.querySelectorAll('.si[data-sec]').forEach(b=>b.classList.toggle('on',b.dataset.sec===sec)); document.getElementById('secTitle').textContent=SEC_TITLES[sec]; renderUsers(document.getElementById('admContent')); return; }
+  _origShowSec(sec);
+};
+
+// Patch viewOrder to use full version
+window.viewOrder = window.viewOrderFull;
+
+// ── PIXEL ─────────────────────────────────────────────────────
+function renderPixel(c){
+  c.innerHTML = `
+  <div class="card">
+    <div class="card-header"><div class="card-title"><i class="fab fa-facebook"></i> Facebook Pixel</div></div>
+    <div class="fg"><label class="fl">Pixel ID</label><input class="fi" id="px_id" value="${window._cfg.fbPixel||''}" placeholder="XXXXXXXXXXXXXXXXX"></div>
+    <div style="background:var(--bg);border-radius:var(--rs);padding:12px;margin-bottom:14px;font-size:.82rem;line-height:1.7;color:var(--txm)"><i class="fas fa-info-circle" style="color:var(--p)"></i> Facebook Business Manager থেকে Pixel ID নিন। এটি যোগ করলে সব পেজে স্বয়ংক্রিয়ভাবে কাজ করবে।</div>
+    ${['Purchase Event','ViewContent Event','AddToCart Event'].map((ev,i)=>`<div class="srow"><div class="slbl"><h4>${ev}</h4></div><div class="tog on" onclick="this.classList.toggle('on')"></div></div>`).join('')}
+    <button class="sub-btn" style="margin-top:14px" onclick="savePixel()">💾 Pixel সেভ করুন</button>
+  </div>`;
+}
+window.savePixel = async function(){
+  window._cfg.fbPixel = document.getElementById('px_id')?.value.trim()||'';
+  try{ await setDoc(doc(db,'settings','main'),{...window._cfg},{merge:true}); toast('Pixel সেভ হয়েছে! ✓','ok'); }
+  catch(e){ toast('সেভ ব্যর্থ','err'); }
+};
+
+// ── MODAL ─────────────────────────────────────────────────────
+window.openModal = function(){ document.getElementById('mainModal').classList.add('open'); };
+window.closeModal = function(){ document.getElementById('mainModal').classList.remove('open'); };
+
+// ── TOAST ─────────────────────────────────────────────────────
+window.toast = function(msg,type='ok'){
+  const icons = {ok:'fa-check-circle',err:'fa-times-circle',warn:'fa-exclamation-triangle'};
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.innerHTML = `<i class="fas ${icons[type]}" style="color:${type==='ok'?'var(--green)':type==='err'?'var(--red)':'var(--yellow)'}"></i><span>${msg}</span>`;
+  document.getElementById('toastWrap').appendChild(t);
+  setTimeout(()=>{ t.style.animation='slideOut .3s forwards'; setTimeout(()=>t.remove(),300); },3500);
+};
+const styleEl = document.createElement('style');
+styleEl.textContent = '@keyframes slideOut{to{transform:translateX(110%);opacity:0}}';
+document.head.appendChild(styleEl);
+
+// ── Check Login State ─────────────────────────────────────────
+onAuthStateChanged(auth, async (user) => {
+  document.getElementById('ldOv').style.display='none';
+  if(user && (user.email==='admin@shopbd.com'||user.email?.includes('admin'))){
+    document.getElementById('admLogin').style.display='none';
+    document.getElementById('admDash').style.display='block';
+    await init();
+    showSec('dashboard');
+    startOrderListener();
+  }
+});
+
+// ── Keyboard shortcuts ────────────────────────────────────────
+document.addEventListener('keydown', e=>{
+  if(e.key==='Escape') closeModal();
+});
+
+console.log('%c🔐 ShopBD Admin v4.0','font-size:1.2rem;font-weight:bold;color:#4DA6FF');
+</script>
+</body>
+</html>
